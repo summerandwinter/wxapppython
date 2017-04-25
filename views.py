@@ -37,7 +37,7 @@ def imageNew(request):
     image_data = Image.new('RGBA',(400,100),ImageColor.getrgb('#fff')) 
     fnt = ImageFont.truetype('font/zhanghaishan.ttf',40)
     d = ImageDraw.Draw(image_data)
-    d.text((10,10), "Pillow文字示例", font=fnt, fill=(0,0,0))
+    d.text((70,30), "Pillow文字示例", font=fnt, fill=(0,0,0))
     msstream=BytesIO()
     image_data.save(msstream,"jpeg")
     image_data.close()
