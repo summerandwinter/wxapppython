@@ -11,7 +11,7 @@ from django.views import View
 from leancloud import Object
 from leancloud import Query
 from leancloud.errors import LeanCloudError
-from PIL import Image, ImageColor, ImageFont, ImageDraw
+from PIL import Image, ImageColor, ImageFont, ImageDraw, ImageFilter
 from io import BytesIO
 
 
@@ -27,17 +27,21 @@ def current_time(request):
     return HttpResponse(datetime.now())
 
 def image(request):  
-    image_data = Image.open("picture.jpg")  
+    image_data = Image.open("girl.jpg")  
+    fliter_data = image_data.filter(ImageFilter.GaussianBlur)
     msstream=BytesIO()
-    image_data.save(msstream,"jpeg")
-    image_data.close()
+    fliter_data.save(msstream,"jpeg")
+    fliter_data.close()
     return HttpResponse(msstream.getvalue(),content_type="image/jpeg")  
 
 def imageNew(request):  
     image_data = Image.new('RGBA',(400,100),ImageColor.getrgb('#fff')) 
     fnt = ImageFont.truetype('font/zhanghaishan.ttf',40)
+    text = 'Pillow文字示例'
+    (width,height) = fnt.getsize(text)
+    print(width)
     d = ImageDraw.Draw(image_data)
-    d.text((70,30), "Pillow文字示例", font=fnt, fill=(0,0,0))
+    d.text(((400-width)/2,(100-height)/2), text, font=fnt, fill=(0,0,0))
     msstream=BytesIO()
     image_data.save(msstream,"jpeg")
     image_data.close()
