@@ -121,6 +121,8 @@ def filter_unsharp_mask(request):
 def image_text(request): 
     fontSize = 40
     text = '当一艘船沉入海底\n当一个人成了谜\n你不知道\n他们为何离去\n那声再见竟是他最后一句' 
+    meta = '后会无期·G.E.M.邓紫棋'
+    copyright = '-时光砂砾-'
     # 按长度（字数）换行
     # text = fill(text,11)
     # get an image
@@ -132,13 +134,20 @@ def image_text(request):
     txt = Image.new('RGBA', (pw, ph), (0,0,0,128))
     # get a font
     fnt = ImageFont.truetype('font/zhanghaishan.ttf',fontSize)
+    meta_fnt = ImageFont.truetype('font/zhanghaishan.ttf',14)
+    copyright_fnt = ImageFont.truetype('font/zhanghaishan.ttf',12)
     # get size of the text
     # (tw, th) = fnt.getsize(text)
     # get a drawing context
     draw = ImageDraw.Draw(txt)
-    (tw, th) = draw.multiline_textsize(text, fnt);
+    tw,th = draw.multiline_textsize(text, fnt)
+    mw,mh = draw.multiline_textsize(meta, meta_fnt)
+    cpw,cph =draw.multiline_textsize(copyright, copyright_fnt)
     # draw text in the middle of the image, half opacity
     draw.multiline_text(((pw-tw)/2,(ph-th)/2), text, font=fnt, fill=(255,255,255,125), align='center')
+    draw.multiline_text(((pw-mw)/2,ph-mh-30), meta, font=meta_fnt, fill=(255,255,255,225), align='center')
+    draw.multiline_text(((pw-cpw)/2,ph-cph-10), copyright, font=copyright_fnt, fill=(255,255,255,225), align='center')
+
     # composite base image and text image
     out = Image.alpha_composite(base, txt)
     # get BytesIO
