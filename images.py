@@ -104,7 +104,7 @@ def filter_sharpen(request):
 # 高斯模糊
 def filter_gaussian_blur(request):  
     image_data = Image.open("girl.jpg")  
-    fliter_data = image_data.filter(ImageFilter.GaussianBlur())
+    fliter_data = image_data.filter(ImageFilter.GaussianBlur(4))
     msstream=BytesIO()
     fliter_data.save(msstream,"jpeg")
     fliter_data.close()

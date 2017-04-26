@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^imageNew/?$', views.imageNew),
     url(r'^static/(?P<path>.*)$', static.serve, {'document_root': 'static'}),
     url(r'^image/text?$', images.image_text),
+    url(r'^image/filters/blur?$',images.filter_blur),
     url(r'^image/filters/contour?$', images.filter_contour),
     url(r'^image/filters/detail?$', images.filter_detail),
     url(r'^image/filters/edge_enhance?$', images.filter_edge_enhance),
