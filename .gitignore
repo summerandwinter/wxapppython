@@ -90,3 +90,5 @@ ENV/
 
 # LeanCloud settings
 .leancloud/
+# font 
+font/

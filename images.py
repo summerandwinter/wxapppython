@@ -120,22 +120,39 @@ def filter_unsharp_mask(request):
 
 def image_text(request): 
     fontSize = 40
+    w = 640
+    h = 640
     text = '当一艘船沉入海底\n当一个人成了谜\n你不知道\n他们为何离去\n那声再见竟是他最后一句' 
     meta = '后会无期·G.E.M.邓紫棋'
-    copyright = '-时光砂砾-'
+    copyright = '— 微信小程序 : 时光砂砾 —'
     # 按长度（字数）换行
     # text = fill(text,11)
+    # make a blank image as the background
+    base = Image.new('RGBA',(w,h),(255,255,255,255))
     # get an image
     photo = Image.open("girl.jpg").convert('RGBA')
+
     (pw, ph) = photo.size
+    if pw/ph>w/h:
+        box = ((pw-ph)/2,0,(pw+ph)/2,ph)
+    else:
+        box = (0,(ph-pw)/2,pw,(pw+ph)/2)  
+
+    photo = photo.crop(box)
+    photo = photo.resize((w,h))
+   
     # blur filter
-    base = photo.filter(ImageFilter.GaussianBlur())
+    photo = photo.filter(ImageFilter.GaussianBlur())
+
+    base.paste(photo)
+
+
     # make a blank image for text, initailized to half-transparent text color
-    txt = Image.new('RGBA', (pw, ph), (0,0,0,128))
+    txt = Image.new('RGBA', (w, h), (0,0,0,100))
     # get a font
-    fnt = ImageFont.truetype('font/zhanghaishan.ttf',fontSize)
-    meta_fnt = ImageFont.truetype('font/zhanghaishan.ttf',14)
-    copyright_fnt = ImageFont.truetype('font/zhanghaishan.ttf',12)
+    fnt = ImageFont.truetype('font/zh/LiJin.ttf',fontSize)
+    meta_fnt = ImageFont.truetype('font/zh/PingFang.ttf',20)
+    copyright_fnt = ImageFont.truetype('font/zh/TongXin.ttf',14)
     # get size of the text
     # (tw, th) = fnt.getsize(text)
     # get a drawing context
@@ -144,9 +161,9 @@ def image_text(request):
     mw,mh = draw.multiline_textsize(meta, meta_fnt)
     cpw,cph =draw.multiline_textsize(copyright, copyright_fnt)
     # draw text in the middle of the image, half opacity
-    draw.multiline_text(((pw-tw)/2,(ph-th)/2), text, font=fnt, fill=(255,255,255,125), align='center')
-    draw.multiline_text(((pw-mw)/2,ph-mh-30), meta, font=meta_fnt, fill=(255,255,255,225), align='center')
-    draw.multiline_text(((pw-cpw)/2,ph-cph-10), copyright, font=copyright_fnt, fill=(255,255,255,225), align='center')
+    draw.multiline_text(((w-tw)/2,(h-th)/2), text, font=fnt, fill=(255,255,255,255), align='center',spacing=15)
+    draw.multiline_text(((w-mw)/2,h-mh-30), meta, font=meta_fnt, fill=(255,255,255,150), align='center')
+    draw.multiline_text(((w-cpw)/2,h-cph-10), copyright, font=copyright_fnt, fill=(255,255,255,150), align='center')
 
     # composite base image and text image
     out = Image.alpha_composite(base, txt)
