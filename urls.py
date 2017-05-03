@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^time/?$', views.current_time),
     url(r'^imageNew/?$', views.imageNew),
     url(r'^static/(?P<path>.*)$', static.serve, {'document_root': 'static'}),
+     url(r'^movie/import?$', movie.import),
     url(r'^image/text?$', images.image_text),
     url(r'^image/template?$', images.template),
     url(r'^image/template2?$', images.template2),
