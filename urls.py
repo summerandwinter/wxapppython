@@ -5,13 +5,15 @@ from django.views import static
 
 import views
 import images
+import card
 
 urlpatterns = [
     url(r'^$', views.index),
     url(r'^time/?$', views.current_time),
+    url(r'^todos/?$', views.TodoView.as_view(), name='todo_list'),
     url(r'^imageNew/?$', views.imageNew),
     url(r'^static/(?P<path>.*)$', static.serve, {'document_root': 'static'}),
-     url(r'^movie/import?$', movie.import),
+    url(r'^card/preview/(?P<id>\w+).png$', card.preview),
     url(r'^image/text?$', images.image_text),
     url(r'^image/template?$', images.template),
     url(r'^image/template2?$', images.template2),
