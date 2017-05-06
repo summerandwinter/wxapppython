@@ -12,6 +12,8 @@ from gevent.pywsgi import WSGIServer
 
 from cloud import engine
 
+#import logging
+#logging.basicConfig(level=logging.DEBUG)
 
 APP_ID = os.environ['LC_APP_ID']
 MASTER_KEY = os.environ['LC_APP_MASTER_KEY']
