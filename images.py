@@ -21,7 +21,7 @@ import re
 
 # 模糊
 def filter_blur(request):  
-    image_data = Image.open("girl.jpg")  
+    image_data = Image.open("photo.jpg")  
     fliter_data = image_data.filter(ImageFilter.BLUR)
     msstream=BytesIO()
     fliter_data.save(msstream,"jpeg")
@@ -29,7 +29,7 @@ def filter_blur(request):
     return HttpResponse(msstream.getvalue(),content_type="image/jpeg")  
 # 轮廓
 def filter_contour(request):  
-    image_data = Image.open("girl.jpg")  
+    image_data = Image.open("photo.jpg")  
     fliter_data = image_data.filter(ImageFilter.CONTOUR)
     msstream=BytesIO()
     fliter_data.save(msstream,"jpeg")
@@ -37,7 +37,7 @@ def filter_contour(request):
     return HttpResponse(msstream.getvalue(),content_type="image/jpeg")  
 # 细节
 def filter_detail(request):  
-    image_data = Image.open("girl.jpg")  
+    image_data = Image.open("photo.jpg")  
     fliter_data = image_data.filter(ImageFilter.DETAIL)
     msstream=BytesIO()
     fliter_data.save(msstream,"jpeg")
@@ -45,7 +45,7 @@ def filter_detail(request):
     return HttpResponse(msstream.getvalue(),content_type="image/jpeg")      
 # 边缘增强
 def filter_edge_enhance(request):  
-    image_data = Image.open("girl.jpg")  
+    image_data = Image.open("photo.jpg")  
     fliter_data = image_data.filter(ImageFilter.EDGE_ENHANCE)
     msstream=BytesIO()
     fliter_data.save(msstream,"jpeg")
@@ -54,7 +54,7 @@ def filter_edge_enhance(request):
 
 # 边缘增强
 def filter_edge_enhance_more(request):  
-    image_data = Image.open("girl.jpg")  
+    image_data = Image.open("photo.jpg")  
     fliter_data = image_data.filter(ImageFilter.EDGE_ENHANCE_MORE)
     msstream=BytesIO()
     fliter_data.save(msstream,"jpeg")
@@ -63,7 +63,7 @@ def filter_edge_enhance_more(request):
 
 # 浮雕
 def filter_emboss(request):  
-    image_data = Image.open("girl.jpg")  
+    image_data = Image.open("photo.jpg")  
     fliter_data = image_data.filter(ImageFilter.EMBOSS)
     msstream=BytesIO()
     fliter_data.save(msstream,"jpeg")
@@ -72,7 +72,7 @@ def filter_emboss(request):
 
 #寻找边缘
 def filter_find_edges(request):  
-    image_data = Image.open("girl.jpg")  
+    image_data = Image.open("photo.jpg")  
     fliter_data = image_data.filter(ImageFilter.FIND_EDGES)
     msstream=BytesIO()
     fliter_data.save(msstream,"jpeg")
@@ -80,7 +80,7 @@ def filter_find_edges(request):
     return HttpResponse(msstream.getvalue(),content_type="image/jpeg")    
 #柔化
 def filter_smooth(request):  
-    image_data = Image.open("girl.jpg")  
+    image_data = Image.open("photo.jpg")  
     fliter_data = image_data.filter(ImageFilter.SMOOTH)
     msstream=BytesIO()
     fliter_data.save(msstream,"jpeg")
@@ -88,7 +88,7 @@ def filter_smooth(request):
     return HttpResponse(msstream.getvalue(),content_type="image/jpeg")     
 #柔化
 def filter_smooth_more(request):  
-    image_data = Image.open("girl.jpg")  
+    image_data = Image.open("photo.jpg")  
     fliter_data = image_data.filter(ImageFilter.SMOOTH_MORE)
     msstream=BytesIO()
     fliter_data.save(msstream,"jpeg")
@@ -96,7 +96,7 @@ def filter_smooth_more(request):
     return HttpResponse(msstream.getvalue(),content_type="image/jpeg")   
 # 锐化
 def filter_sharpen(request):  
-    image_data = Image.open("girl.jpg")  
+    image_data = Image.open("photo.jpg")  
     fliter_data = image_data.filter(ImageFilter.SHARPEN)
     msstream=BytesIO()
     fliter_data.save(msstream,"jpeg")
@@ -104,7 +104,7 @@ def filter_sharpen(request):
     return HttpResponse(msstream.getvalue(),content_type="image/jpeg")  
 # 高斯模糊
 def filter_gaussian_blur(request):  
-    image_data = Image.open("girl.jpg")  
+    image_data = Image.open("photo.jpg")  
     fliter_data = image_data.filter(ImageFilter.GaussianBlur(4))
     msstream=BytesIO()
     fliter_data.save(msstream,"jpeg")
@@ -112,7 +112,7 @@ def filter_gaussian_blur(request):
     return HttpResponse(msstream.getvalue(),content_type="image/jpeg")      
 # 反遮罩锐化
 def filter_unsharp_mask(request):  
-    image_data = Image.open("girl.jpg")  
+    image_data = Image.open("photo.jpg")  
     fliter_data = image_data.filter(ImageFilter.UnsharpMask())
     msstream=BytesIO()
     fliter_data.save(msstream,"jpeg")
@@ -124,12 +124,12 @@ def template(request):
     h = 862
     iw = 600
     ih = 340
-    title = '标题'
+    title = '每日一言'
     content = '觉得最失落的，大概是你还在为你们的未来出谋划策，他却已慢慢后退不再与你并肩。' 
     spacing = 20
     content = fill(content, 15)
-    author = '- 卫斯理 -' 
-    copyright = '微信小程序「时光砂砾」'  
+    author = '- 拾光笔记 -' 
+    copyright = '微信小程序「拾光笔记」'  
     title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
     content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 30)
     author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
@@ -146,7 +146,7 @@ def template(request):
 
     
 
-    photo = Image.open("girl.jpg").convert('RGBA')
+    photo = Image.open("photo.jpg").convert('RGBA')
 
     (pw, ph) = photo.size
     if pw/ph>iw/ih:
@@ -180,12 +180,12 @@ def template2(request):
     h = 1020
     iw = 600
     ih = 340
-    title = '标题'
+    title = '每日一言'
     content = '觉得最失落的，大概是你还在为你们的未来出谋划策，他却已慢慢后退不再与你并肩。' 
     spacing = 20
     padding = 2
-    author = '- 卫斯理 -' 
-    copyright = '微信小程序「时光砂砾」'  
+    author = '- 拾光笔记 -' 
+    copyright = '微信小程序「拾光笔记」'  
     title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
     content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 30)
     author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
@@ -198,7 +198,7 @@ def template2(request):
 
     
 
-    photo = Image.open("girl.jpg").convert('RGBA')
+    photo = Image.open("photo.jpg").convert('RGBA')
 
     (pw, ph) = photo.size
     if pw/ph>iw/ih:
@@ -262,12 +262,12 @@ def template3(request):
     ih = 340
     bw = 300
     bh = 300
-    title = '标题'
+    title = '每日一言'
     content = '觉得最失落的，大概是你还在为你们的未来出谋划策，他却已慢慢后退不再与你并肩。' 
     spacing = 20
     content = fill(content, 15)
-    author = '- 卫斯理 -' 
-    copyright = '微信小程序「时光砂砾」'  
+    author = '- 拾光笔记 -' 
+    copyright = '微信小程序「拾光笔记」'  
     title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
     content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 30)
     author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
@@ -284,7 +284,7 @@ def template3(request):
 
     
 
-    photo = Image.open("girl.jpg").convert('RGBA')
+    photo = Image.open("photo.jpg").convert('RGBA')
 
     pw, ph = photo.size
 
@@ -331,12 +331,12 @@ def template4(request):
     bw = 300
     bh = 300
     padding = 2
-    title = '标题'
+    title = '每日一言'
     content = '觉得最失落的，大概是你还在为你们的未来出谋划策，他却已慢慢后退不再与你并肩。' 
     spacing = 20
     content = fill(content, 15)
-    author = '- 卫斯理 -' 
-    copyright = '微信小程序「时光砂砾」'  
+    author = '- 拾光笔记 -' 
+    copyright = '微信小程序「拾光笔记」'  
     title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
     content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 30)
     author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
@@ -348,7 +348,7 @@ def template4(request):
 
     
 
-    photo = Image.open("girl.jpg").convert('RGBA')
+    photo = Image.open("photo.jpg").convert('RGBA')
 
     pw, ph = photo.size
 
@@ -420,13 +420,13 @@ def image_text(request):
     h = 640
     text = '当一艘船沉入海底\n当一个人成了谜\n你不知道\n他们为何离去\n那声再见竟是他最后一句' 
     meta = '后会无期·G.E.M.邓紫棋'
-    copyright = '— 微信小程序 : 时光砂砾 —'
+    copyright = '— 微信小程序 : 拾光笔记 —'
     # 按长度（字数）换行
     # text = fill(text,11)
     # make a blank image as the background
     base = Image.new('RGBA',(w,h),(255,255,255,255))
     # get an image
-    photo = Image.open("girl.jpg").convert('RGBA')
+    photo = Image.open("photo.jpg").convert('RGBA')
 
     (pw, ph) = photo.size
     if pw/ph>w/h:
