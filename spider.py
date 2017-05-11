@@ -6,8 +6,8 @@ from leancloud import Query
 import json
 import leancloud
 
-APP_ID = '7C7MfP24LboNSLeOnbh112nT-gzGzoHsz'
-MASTER_KEY = 'bIEoNy5pSWoqvC3qq0vpGMT1'
+APP_ID = 'xxx'
+MASTER_KEY = 'xxx'
 
 leancloud.init(APP_ID, master_key=MASTER_KEY)
 cookie = http.cookiejar.CookieJar()                                        #保存cookie，为登录后访问其它页面做准备  

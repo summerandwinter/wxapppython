@@ -22,13 +22,45 @@ from qiniu import Auth, set_default, etag, PersistentFop, build_op, op_save, Zon
 from qiniu import put_data, put_file, put_stream
 from qiniu import BucketManager, build_batch_copy, build_batch_rename, build_batch_move, build_batch_stat, build_batch_delete
 from qiniu import urlsafe_base64_encode, urlsafe_base64_decode 
+import os
+# 设置 Django 项目配置文件
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
+
+#import logging
+#logging.basicConfig(level=logging.DEBUG)
+
+APP_ID = 'xxx'
+MASTER_KEY = 'xxx'
+
+leancloud.init(APP_ID, master_key=MASTER_KEY)
+
 
 class Card(Object):
     pass
 class Photo(Object):
     pass    
+'''
+print('getting total count:')
+query = Query(Card)
+query.does_not_exist('photo')
+count = query.count()
+progress = 0
+print('Total:'+str(count))
+cardlist = query.find()
+for card in cardlist:
+    id = card.get('objectId')
+    print('generating:'+id)
+    result = generateCard(id)
+    print('result:'+result)
+    print('progess:('+str(progress)+'/'+str(count)+')')
+    progress = progress+1
+else:
+    print('no data')
 
-def generate(request,id):
+'''
+
+
+def generateCard(id):
     try:
         card = Query(Card).get(id)
         tid = card.get('temlate')
@@ -68,44 +100,19 @@ def generate(request,id):
                 update = Card.create_without_data(id)
                 update.set('photo',photo)
                 update.save()
-                return HttpResponse(json.dumps(ret),content_type="text/plain")
+                return 'ok'
             else:
-                return HttpResponse('failed',content_type="text/plain") 
+                return 'failed' 
         else:
-            return HttpResponse('already',content_type="text/plain") 
-                   
-            
+            return 'already'            
     except LeanCloudError as e:
         if e.code == 101:  # 服务端对应的 Class 还没创建
             card = ''
-            return HttpResponse(e,content_type="text/plain") 
+            return 'no class' 
         else:
             raise e
-            return HttpResponse(e,content_type="text/plain") 
+            return 'error'
              
-def preview(request,id):
-    try:
-        card = Query(Card).get(id)
-        tid = card.get('template')
-        msstream = BytesIO()
-        if tid == 1:
-            template(card,msstream)
-        elif tid == 2:
-            template2(card,msstream)
-        elif tid == 3:
-            template3(card,msstream)
-        elif tid == 4:
-            template4(card,msstream)
-        else:
-            template(card,msstream)  
-        return HttpResponse(msstream.getvalue(),content_type="image/png") 
-    except LeanCloudError as e:
-        if e.code == 101:  # 服务端对应的 Class 还没创建
-            card = ''
-            return HttpResponse(e,content_type="text/plain") 
-        else:
-            raise e
-            return HttpResponse(e,content_type="text/plain") 
 
 def template(card,msstream):
     w = 640
@@ -392,4 +399,20 @@ def template4(card,msstream):
     base.close()
 
 
-
+print('getting total count:')
+query = Query(Card)
+query.does_not_exist('photo')
+query.limit(1000)
+count = query.count()
+progress = 0
+print('Total:'+str(count))
+cardlist = query.find()
+for card in cardlist:
+    id = card.get('objectId')
+    print('generating:'+id)
+    result = generateCard(id)
+    print('result:'+result)
+    print('progess:('+str(progress)+'/'+str(count)+')')
+    progress = progress+1
+else:
+    print('no data')
