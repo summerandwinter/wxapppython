@@ -82,6 +82,59 @@ def generate(request,id):
         else:
             raise e
             return HttpResponse(e,content_type="text/plain") 
+
+def generateCloud(card):
+    try:
+        tid = card.get('temlate')
+        if(card.get('photo') is None):
+            msstream = BytesIO()
+            if tid == 1:
+                template(card,msstream)
+            elif tid == 2:
+                template2(card,msstream)
+            elif tid == 3:
+                template3(card,msstream)
+            elif tid == 4:
+                template4(card,msstream)
+            else:
+                template(card,msstream)
+            url = 'http://oppyrwj3t.bkt.clouddn.com';
+            access_key = 'xxx'
+            secret_key = 'xxx'
+            #构建鉴权对象
+            q = Auth(access_key, secret_key)
+            #要上传的空间
+            bucket_name = 'card'
+            key = card.get('objectId')
+            token = q.upload_token(bucket_name)
+            ret, info = put_data(token, key, msstream.getvalue())
+            if(info.ok()):
+                metaData = {'owner':card.get('username')}
+                photo = Photo() 
+                photo.set('mine_type','image/jpeg')
+                photo.set('key',key)
+                photo.set('name',key)
+                photo.set('url',url+'/'+key)
+                photo.set('provider','qiniu')
+                photo.set('metaData',metaData)
+                photo.set('bucket',bucket_name)
+                photo.save()
+                update = Card.create_without_data(key)
+                update.set('photo',photo)
+                update.save()
+                return 'ok'
+            else:
+                return 'failed'
+            return 'already'
+                   
+            
+    except LeanCloudError as e:
+        if e.code == 101:  # 服务端对应的 Class 还没创建
+            card = ''
+            return HttpResponse(e,content_type="text/plain") 
+        else:
+            raise e
+            return HttpResponse(e,content_type="text/plain")            
              
 def preview(request,id):
     try:
