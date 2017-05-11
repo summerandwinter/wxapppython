@@ -16,11 +16,60 @@ from io import BytesIO
 from textwrap import *
 import re
 import leancloud
-import urllib  
+import urllib 
+from qiniu import Auth, set_default, etag, PersistentFop, build_op, op_save, Zone
+from qiniu import put_data, put_file, put_stream
+from qiniu import BucketManager, build_batch_copy, build_batch_rename, build_batch_move, build_batch_stat, build_batch_delete
+from qiniu import urlsafe_base64_encode, urlsafe_base64_decode 
 
 class Card(Object):
     pass
+class Photo(Object):
+    pass    
 
+def generate(request,id):
+    try:
+        card = Query(Card).get(id)
+        tid = card.get('temlate')
+        msstream = BytesIO()
+        if tid == 1:
+            template(card,msstream)
+        elif tid == 2:
+            template2(card,msstream)
+        elif tid == 3:
+            template3(card,msstream)
+        elif tid == 4:
+            template4(card,msstream)
+        else:
+            template(card,msstream)
+        url = 'http://oppyrwj3t.bkt.clouddn.com';
+        access_key = 'tyqeKgL8GqUmLsWKf1LVdg9RgCdgwKtRza9CEKDt'
+        secret_key = 'Zc-FxrpR6Y4pVzatmdL-Pw5eA49e-szFrUiNDsj4'
+        #构建鉴权对象
+        q = Auth(access_key, secret_key)
+        #要上传的空间
+        bucket_name = 'card'
+        key = card.get('objectId')
+        token = q.upload_token(bucket_name)
+        ret, info = put_data(token, key, msstream.getvalue())
+        metaData = {'owner':card.get('username')}
+        photo = Photo()
+        photo.set('mine_type','image/jpeg')
+        photo.set('key',key)
+        photo.set('name',key)
+        photo.set('url',url+'/'+key)
+        photo.set('provider','qiniu')
+        photo.set('metaData',metaData)
+        photo.set('bucket',bucket_name)
+        photo.save()
+        return HttpResponse(ret,content_type="application/json") 
+    except LeanCloudError as e:
+        if e.code == 101:  # 服务端对应的 Class 还没创建
+            card = ''
+            return HttpResponse(e,content_type="text/plain") 
+        else:
+            raise e
+            return HttpResponse(e,content_type="text/plain")       
 def preview(request,id):
     try:
         card = Query(Card).get(id)
@@ -93,7 +142,7 @@ def template(card,msstream):
    
     
     # save image data to output stream
-    base.save(msstream,"png")
+    base.save(msstream,"jpeg")
     # release memory
     base.close()
 
@@ -171,7 +220,7 @@ def template2(card,msstream):
    
 
     # save image data to output stream
-    base.save(msstream,"png")
+    base.save(msstream,"jpeg")
     # release memory
     base.close()
     
@@ -235,7 +284,7 @@ def template3(card,msstream):
     draw.multiline_text((w-crw,480+th+45+ch+115+ah+50), copyright, font=copyright_fnt, fill=(189,189,189,255), align='center')
    
     # save image data to output stream
-    base.save(msstream,"png")
+    base.save(msstream,"jpeg")
     # release memory
     base.close()
 
@@ -325,7 +374,7 @@ def template4(card,msstream):
     draw.multiline_text((w-crw,h-15-crh), copyright, font=copyright_fnt, fill=(189,189,189,255), align='center')
    
     # save image data to output stream
-    base.save(msstream,"png")
+    base.save(msstream,"jpeg")
     # release memory
     base.close()
 

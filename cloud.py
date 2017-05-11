@@ -62,12 +62,13 @@ def qiniu():
     #data=open('photo.jpg')
     #ret, err = qiniu.io.put(uptoken, None, data) #key直接none就可以
     #需要填写你的 Access Key 和 Secret Key
+    url = 'oppyrwj3t.bkt.clouddn.com';
     access_key = 'tyqeKgL8GqUmLsWKf1LVdg9RgCdgwKtRza9CEKDt'
     secret_key = 'Zc-FxrpR6Y4pVzatmdL-Pw5eA49e-szFrUiNDsj4'
     #构建鉴权对象
     q = Auth(access_key, secret_key)
     #要上传的空间
-    bucket_name = 'miposter'
+    bucket_name = 'card'
     key = 'temp'
     data = BytesIO();
     template(data);
