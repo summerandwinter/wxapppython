@@ -104,8 +104,8 @@ def template(card,msstream):
     url = card.get('img_url')
     spacing = 20
     content = fill(content, 15)
-    author = '- 拾光笔记 -' 
-    copyright = '微信小程序「拾光笔记」'  
+    author = '- 天天码图 -' 
+    copyright = '微信小程序「天天码图」'  
     title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
     content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 30)
     author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
@@ -158,8 +158,8 @@ def template2(card,msstream):
     url = card.get('img_url')
     spacing = 20
     padding = 2
-    author = '- 拾光笔记 -' 
-    copyright = '微信小程序「拾光笔记」'  
+    author = '- 天天码图 -' 
+    copyright = '微信小程序「天天码图」'  
     title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
     content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 30)
     author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
@@ -237,8 +237,8 @@ def template3(card,msstream):
     url = card.get('img_url')
     spacing = 20
     content = fill(content, 15)
-    author = '- 拾光笔记 -' 
-    copyright = '微信小程序「拾光笔记」'  
+    author = '- 天天码图 -' 
+    copyright = '微信小程序「天天码图」'  
     title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
     content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 30)
     author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
@@ -303,8 +303,8 @@ def template4(card,msstream):
     url = card.get('img_url')
     spacing = 20
     content = fill(content, 15)
-    author = '- 拾光笔记 -' 
-    copyright = '微信小程序「拾光笔记」'  
+    author = '- 天天码图 -' 
+    copyright = '微信小程序「天天码图」'  
     title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
     content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 30)
     author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)

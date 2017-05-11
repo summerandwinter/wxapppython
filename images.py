@@ -128,8 +128,8 @@ def template(request):
     content = '觉得最失落的，大概是你还在为你们的未来出谋划策，他却已慢慢后退不再与你并肩。' 
     spacing = 20
     content = fill(content, 15)
-    author = '- 拾光笔记 -' 
-    copyright = '微信小程序「拾光笔记」'  
+    author = '- 天天码图 -' 
+    copyright = '微信小程序「天天码图」'  
     title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
     content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 30)
     author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
@@ -184,8 +184,8 @@ def template2(request):
     content = '觉得最失落的，大概是你还在为你们的未来出谋划策，他却已慢慢后退不再与你并肩。' 
     spacing = 20
     padding = 2
-    author = '- 拾光笔记 -' 
-    copyright = '微信小程序「拾光笔记」'  
+    author = '- 天天码图 -' 
+    copyright = '微信小程序「天天码图」'  
     title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
     content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 30)
     author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
@@ -266,8 +266,8 @@ def template3(request):
     content = '觉得最失落的，大概是你还在为你们的未来出谋划策，他却已慢慢后退不再与你并肩。' 
     spacing = 20
     content = fill(content, 15)
-    author = '- 拾光笔记 -' 
-    copyright = '微信小程序「拾光笔记」'  
+    author = '- 天天码图 -' 
+    copyright = '微信小程序「天天码图」'  
     title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
     content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 30)
     author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
@@ -335,8 +335,8 @@ def template4(request):
     content = '觉得最失落的，大概是你还在为你们的未来出谋划策，他却已慢慢后退不再与你并肩。' 
     spacing = 20
     content = fill(content, 15)
-    author = '- 拾光笔记 -' 
-    copyright = '微信小程序「拾光笔记」'  
+    author = '- 天天码图 -' 
+    copyright = '微信小程序「天天码图」'  
     title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
     content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 30)
     author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
@@ -420,7 +420,7 @@ def image_text(request):
     h = 640
     text = '当一艘船沉入海底\n当一个人成了谜\n你不知道\n他们为何离去\n那声再见竟是他最后一句' 
     meta = '后会无期·G.E.M.邓紫棋'
-    copyright = '— 微信小程序 : 拾光笔记 —'
+    copyright = '— 微信小程序 : 天天码图 —'
     # 按长度（字数）换行
     # text = fill(text,11)
     # make a blank image as the background
