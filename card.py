@@ -45,8 +45,8 @@ def generate(request,id):
             else:
                 template(card,msstream)
             url = 'http://oppyrwj3t.bkt.clouddn.com';
-            access_key = 'xxx'
-            secret_key = 'xxx'
+            access_key = 'tyqeKgL8GqUmLsWKf1LVdg9RgCdgwKtRza9CEKDt'
+            secret_key = 'Zc-FxrpR6Y4pVzatmdL-Pw5eA49e-szFrUiNDsj4'
             #构建鉴权对象
             q = Auth(access_key, secret_key)
             #要上传的空间
@@ -99,8 +99,8 @@ def generateCloud(card):
             else:
                 template(card,msstream)
             url = 'http://oppyrwj3t.bkt.clouddn.com';
-            access_key = 'xxx'
-            secret_key = 'xxx'
+            access_key = 'tyqeKgL8GqUmLsWKf1LVdg9RgCdgwKtRza9CEKDt'
+            secret_key = 'Zc-FxrpR6Y4pVzatmdL-Pw5eA49e-szFrUiNDsj4'
             #构建鉴权对象
             q = Auth(access_key, secret_key)
             #要上传的空间

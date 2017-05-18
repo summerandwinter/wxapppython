@@ -22,7 +22,9 @@ class Like(Object):
 class Card(Object):
     pass  
 class User(Object):
-    pass       
+    pass
+class _File(Object):
+    pass           
 
 @engine.define
 def hello(**params):
@@ -35,6 +37,7 @@ def hello(**params):
 def maker(**params):
     name = params['name']
     content = params['content']
+    file = params['file']
     img_url = params['img_url']
     username = params['username']
     template = params['template']
@@ -44,8 +47,16 @@ def maker(**params):
     card.set('img_url',img_url)
     card.set('username',username)
     card.set('template',template)
+    image = _File.create_without_data(file)
+    card.set('image',image)
     card.save()
-    return generateCloud(card)
+    stat = generateCloud(card)
+    if stat == 'ok':
+    	result = {'code':200,'data':card.get('objectId')}
+    	return result
+    else:
+    	result = {'code':500,'message':'failed'}
+    	return result
     
 
 
