@@ -337,10 +337,10 @@ def template4(request):
     content = fill(content, 15)
     author = '- 天天码图 -' 
     copyright = '微信小程序「天天码图」'  
-    title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
-    content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 30)
-    author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
-    copyright_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
+    title_fnt = ImageFont.truetype('font/zh/WangQingHua.ttf', 35)
+    content_fnt = ImageFont.truetype('font/zh/WangQingHua.ttf', 30)
+    author_fnt = ImageFont.truetype('font/zh/WangQingHua.ttf', 25)
+    copyright_fnt = ImageFont.truetype('font/zh/WangQingHua.ttf', 25)
     base = Image.new('RGBA',(w,h),(255,255,255,255))
     draw = ImageDraw.Draw(base)
     aw,ah = draw.multiline_textsize(author, font=author_fnt)
