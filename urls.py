@@ -20,6 +20,7 @@ urlpatterns = [
     url(r'^image/template2?$', images.template2),
     url(r'^image/template3?$', images.template3),
     url(r'^image/template4?$', images.template4),
+    url(r'^image/template5/(?P<font>\w+)$', images.template5),
     url(r'^image/filters/blur?$',images.filter_blur),
     url(r'^image/filters/contour?$', images.filter_contour),
     url(r'^image/filters/detail?$', images.filter_detail),
