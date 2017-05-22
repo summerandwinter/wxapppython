@@ -440,18 +440,20 @@ def template5(request,font):
     #content = content.replace('。','')
     #content = content.replace('\r','。')
     #content = fill(content, 14)
-    author = '- 天天码图 -' 
     copyright = '微信小程序「天天码图」'  
     title_fnt = ImageFont.truetype('font/zh/'+font+'.ttf', 35)
+    author_fnt = ImageFont.truetype('font/zh/'+font+'.ttf', 25)
     content_fnt = ImageFont.truetype('font/zh/'+font+'.ttf', 30)
-    copyright_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
+    copyright_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 15)
 
     clines = content.split('\n')
     tlines = wrap(title, 1)
+    alines = wrap(author, 1)
     # get width and height of single title word
     stw,sth = title_fnt.getsize("已")
     # get width and height of single content word
-    scw,sch = content_fnt.getsize("已")   
+    saw,sah = author_fnt.getsize("已") 
+    scw,sch = content_fnt.getsize("已")  
     scrw,scrh = copyright_fnt.getsize("已")
     wmh = len(tlines)*(sth+padding)
     wmw = len(clines)*(scw+spacing)
@@ -470,16 +472,23 @@ def template5(request,font):
     # split the title
     
     # current title height
-    tnh = 80
+    tnh = 80 
     
     for tline in tlines:       
         draw.text((w-115-stw,tnh), tline, fill=(0,0,0,255), font=title_fnt)
         tnh = tnh+sth
+
+    anh = 80+sah
+    
+    for aline in alines:       
+        draw.text((w-115-stw-saw-10,anh), aline, fill=(0,0,0,255), font=author_fnt)
+        anh = anh+sah    
     
     #clines = wrap(content, 14)
 
     # current width of content
     cnw = w-115-stw-115-scw
+    lnh = 80
     for cline in clines:
         # current height of content 
         cnh = 80 
@@ -490,11 +499,14 @@ def template5(request,font):
                 cnh = cnh+sch+padding
             else:
                 #draw.text((cnw,cnh), cword, fill=(0,0,0,255), font=content_fnt)
-                cnh = cnh+sch+padding    
+                cnh = cnh+sch+padding
+                lnh = cnh    
         cnw = cnw-scw-spacing   
     copyrihtW,copyrightH = draw.multiline_textsize(copyright, font=copyright_fnt)    
     draw.multiline_text((w-copyrihtW,h-15-copyrightH), copyright, font=copyright_fnt, fill=(189,189,189,255), align='center')
-   
+    stamp = Image.open("stamp.png").convert('RGBA')
+    stamp = stamp.resize((50,50))
+    base.paste(stamp,box=(cnw+scw+int((50-scw)/2),lnh-25),mask=stamp)
 
     # get BytesIO
     msstream = BytesIO()
