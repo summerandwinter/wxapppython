@@ -11,8 +11,6 @@ from django.views import View
 from leancloud import Object
 from leancloud import Query
 from leancloud.errors import LeanCloudError
-from PIL import Image, ImageColor, ImageFont, ImageDraw, ImageFilter
-from io import BytesIO
 
 
 class Todo(Object):
