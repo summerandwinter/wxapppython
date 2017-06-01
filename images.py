@@ -15,9 +15,13 @@ from PIL import Image, ImageColor, ImageFont, ImageDraw, ImageFilter
 from io import BytesIO
 from textwrap import *
 import re
+import os
+from weixin import weixin
 
 
-
+app_id = os.environ["WXA_APP_ID"]
+app_secret = os.environ["WXA_APP_SECRET"] 
+wx = weixin(app_id,app_secret)  
 
 # 模糊
 def filter_blur(request):  
@@ -117,7 +121,12 @@ def filter_unsharp_mask(request):
     msstream=BytesIO()
     fliter_data.save(msstream,"jpeg")
     fliter_data.close()
-    return HttpResponse(msstream.getvalue(),content_type="image/jpeg")  
+    return HttpResponse(msstream.getvalue(),content_type="image/jpeg") 
+
+def wxacode(request):
+    
+    msstream = BytesIO(wx.get_wxacode_unlimit('123456'));
+    return HttpResponse(msstream.getvalue(),content_type="image/jpeg")        
 
 def template(request):
     w = 640
@@ -164,8 +173,11 @@ def template(request):
     draw.multiline_text((w/2-cw/2,420+th+45), content, font=content_fnt, fill=(0,0,0,255), align='center', spacing=spacing)
     draw.multiline_text((w/2-aw/2,420+th+45+ch+115), author, font=author_fnt, fill=(0,0,0,255), align='center')
     draw.multiline_text((w-crw,420+th+45+ch+115+ah+50), copyright, font=copyright_fnt, fill=(189,189,189,255), align='center')
-   
-
+    
+    wxacodestream = wx.get_wxacode_unlimit('123456');
+    wxacode = Image.open(BytesIO(wxacodestream)).convert('RGBA')
+    wxacode = wxacode.resize((140,140),Image.ANTIALIAS)
+    base.paste(wxacode,box=(0,h-140))
     # get BytesIO
     msstream = BytesIO()
     # save image data to output stream

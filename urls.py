@@ -16,6 +16,8 @@ urlpatterns = [
     url(r'^card/generate/(?P<id>\w+)$', card.generate),
     url(r'^card/preview/(?P<id>\w+).png$', card.preview),
     url(r'^image/text?$', images.image_text),
+    url(r'^os/?$', views.os_info),
+    url(r'^image/wxacode?$', images.wxacode),
     url(r'^image/template?$', images.template),
     url(r'^image/template2?$', images.template2),
     url(r'^image/template3?$', images.template3),

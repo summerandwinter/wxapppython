@@ -23,16 +23,7 @@ from qiniu import put_data, put_file, put_stream
 from qiniu import BucketManager, build_batch_copy, build_batch_rename, build_batch_move, build_batch_stat, build_batch_delete
 from qiniu import urlsafe_base64_encode, urlsafe_base64_decode 
 import os
-# 设置 Django 项目配置文件
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
 
-#import logging
-#logging.basicConfig(level=logging.DEBUG)
-
-APP_ID = 'xxx'
-MASTER_KEY = 'xxx'
-
-leancloud.init(APP_ID, master_key=MASTER_KEY)
 
 
 class Card(Object):
@@ -75,10 +66,10 @@ def generateCard(id):
             elif tid == 4:
                 template4(card,msstream)
             else:
-                template(card,msstream)
-            url = 'http://oppyrwj3t.bkt.clouddn.com';
-            access_key = 'tyqeKgL8GqUmLsWKf1LVdg9RgCdgwKtRza9CEKDt'
-            secret_key = 'Zc-FxrpR6Y4pVzatmdL-Pw5eA49e-szFrUiNDsj4'
+                template(card,msstream) 
+            url = os.environ["QINIU_ACCESS_URL"]
+            access_key = os.environ["QINIU_ACCESS_KEY"]
+            secret_key = os.environ["QINIU_SECRET_KEY"]
             #构建鉴权对象
             q = Auth(access_key, secret_key)
             #要上传的空间

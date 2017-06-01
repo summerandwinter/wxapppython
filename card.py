@@ -21,7 +21,8 @@ import json
 from qiniu import Auth, set_default, etag, PersistentFop, build_op, op_save, Zone
 from qiniu import put_data, put_file, put_stream
 from qiniu import BucketManager, build_batch_copy, build_batch_rename, build_batch_move, build_batch_stat, build_batch_delete
-from qiniu import urlsafe_base64_encode, urlsafe_base64_decode 
+from qiniu import urlsafe_base64_encode, urlsafe_base64_decode
+import os 
 
 class Card(Object):
     pass
@@ -44,9 +45,9 @@ def generate(request,id):
                 template4(card,msstream)
             else:
                 template(card,msstream)
-            url = 'http://oppyrwj3t.bkt.clouddn.com';
-            access_key = 'tyqeKgL8GqUmLsWKf1LVdg9RgCdgwKtRza9CEKDt'
-            secret_key = 'Zc-FxrpR6Y4pVzatmdL-Pw5eA49e-szFrUiNDsj4'
+            url = os.environ["QINIU_ACCESS_URL"]
+            access_key = os.environ["QINIU_ACCESS_KEY"]
+            secret_key = os.environ["QINIU_SECRET_KEY"]
             #构建鉴权对象
             q = Auth(access_key, secret_key)
             #要上传的空间

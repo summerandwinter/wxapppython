@@ -92,3 +92,5 @@ ENV/
 .leancloud/
 # font 
 font/
+#config
+config.conf

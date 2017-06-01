@@ -4,6 +4,7 @@ from gevent import monkey
 monkey.patch_all()
 
 import os
+import configparser 
 # 设置 Django 项目配置文件
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
 
@@ -11,7 +12,13 @@ import leancloud
 from gevent.pywsgi import WSGIServer
 
 from cloud import engine
-
+cf = configparser.ConfigParser() 
+cf.read("config.conf") 
+os.environ["WXA_APP_ID"] = cf.get("wxa", "app_id") 
+os.environ["WXA_APP_SECRET"] = cf.get("wxa", "app_secret") 
+os.environ["QINIU_ACCESS_KEY"] = cf.get("qiniu", "access_key") 
+os.environ["QINIU_SECRET_KEY"] = cf.get("qiniu", "secret_key")
+os.environ["QINIU_ACCESS_URL"] = cf.get("qiniu", "access_url")  
 #import logging
 #logging.basicConfig(level=logging.DEBUG)
 

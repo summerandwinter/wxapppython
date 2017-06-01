@@ -13,6 +13,7 @@ from leancloud import Query
 from leancloud.errors import LeanCloudError
 from PIL import Image, ImageColor, ImageFont, ImageDraw, ImageFilter
 from io import BytesIO
+import os
 
 
 class Todo(Object):
@@ -25,6 +26,11 @@ def index(request):
 
 def current_time(request):
     return HttpResponse(datetime.now())
+
+def os_info(request):
+    environ = os.environ
+    return HttpResponse(environ.keys(),content_type="application/json") 
+
 
 def image(request):  
     image_data = Image.open("girl.jpg")  
