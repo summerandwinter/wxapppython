@@ -23,13 +23,27 @@ from qiniu import put_data, put_file, put_stream
 from qiniu import BucketManager, build_batch_copy, build_batch_rename, build_batch_move, build_batch_stat, build_batch_delete
 from qiniu import urlsafe_base64_encode, urlsafe_base64_decode 
 import os
+import configparser 
 
+cf = configparser.ConfigParser() 
+cf.read("config.conf") 
+os.environ["WXA_APP_ID"] = cf.get("wxa", "app_id") 
+os.environ["WXA_APP_SECRET"] = cf.get("wxa", "app_secret") 
+os.environ["QINIU_ACCESS_KEY"] = cf.get("qiniu", "access_key") 
+os.environ["QINIU_SECRET_KEY"] = cf.get("qiniu", "secret_key")
+os.environ["QINIU_ACCESS_URL"] = cf.get("qiniu", "access_url")  
 
+APP_ID = '7C7MfP24LboNSLeOnbh112nT-gzGzoHsz'
+MASTER_KEY = 'bIEoNy5pSWoqvC3qq0vpGMT1'
+
+leancloud.init(APP_ID, master_key=MASTER_KEY)
 
 class Card(Object):
     pass
 class Photo(Object):
-    pass    
+    pass  
+class _User(Object):
+    pass      
 '''
 print('getting total count:')
 query = Query(Card)
@@ -47,8 +61,8 @@ for card in cardlist:
     progress = progress+1
 else:
     print('no data')
-
 '''
+
 
 
 def generateCard(id):
@@ -89,6 +103,9 @@ def generateCard(id):
                 photo.set('bucket',bucket_name)
                 photo.save()
                 update = Card.create_without_data(id)
+                user = _User.create_without_data('590be679ac502e006cdc63c0')
+                update.set('user',user)
+                update.set('username','569dil3zuypnrpjqwe97l3qkw')
                 update.set('photo',photo)
                 update.save()
                 return 'ok'
@@ -156,6 +173,7 @@ def template(card,msstream):
     base.save(msstream,"jpeg")
     # release memory
     base.close()
+    return (w,h)
 
 
 
@@ -234,7 +252,7 @@ def template2(card,msstream):
     base.save(msstream,"jpeg")
     # release memory
     base.close()
-    
+    return (w,h)
 
 def template3(card,msstream):
     w = 640
@@ -298,7 +316,7 @@ def template3(card,msstream):
     base.save(msstream,"jpeg")
     # release memory
     base.close()
-
+    return (w,h)
 
 
 def template4(card,msstream):
@@ -388,6 +406,7 @@ def template4(card,msstream):
     base.save(msstream,"jpeg")
     # release memory
     base.close()
+    return (w,h)
 
 
 print('getting total count:')
