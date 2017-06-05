@@ -426,6 +426,73 @@ def template4(request):
     # release memory
     base.close()
     return HttpResponse(msstream.getvalue(),content_type="image/png") 
+
+
+def template6(request):
+    w = 640
+    h = 1080
+
+    padding = 2
+    spacing = 5
+    title = '你还要我怎样'
+    content = '我后来\n都会选择绕过那条街\n又多希望在另一条街能遇见' 
+    singer = '薛之谦'
+    title_fnt = ImageFont.truetype('font/zh/JunYa.otf', 35)
+    singer_fnt = ImageFont.truetype('font/zh/JunYa.otf', 30)
+    content_fnt = ImageFont.truetype('font/zh/WangQingHua.ttf', 30)
+    clines = content.split('\n')
+    mcw = 0
+    for cline in clines:
+        clw,clh = content_fnt.getsize(cline)
+        if clw > mcw:
+            mcw = clw
+    ssw,ssh = singer_fnt.getsize("已")
+    stw,sth = title_fnt.getsize("已")
+    slines = wrap(singer, 1)
+    tw,wh = title_fnt.getsize(title)
+    base = Image.open("640.jpg").convert('RGBA')
+    w, h = base.size
+    draw = ImageDraw.Draw(base)
+    draw.multiline_text(((w-tw)/2,100), title, font=title_fnt, fill=(255,255,255,255), align='center')
+    line_height = 2
+    line_width = 50
+    line_padding = 10
+    left_line_x = (w-tw)/2 - line_width - line_padding
+    left_line_y = 100 + (sth-line_height)/2
+    left_line_x2 = (w-tw)/2 - line_padding
+    left_line_y2 = left_line_y
+
+    right_line_x = (w-tw)/2 + tw + line_padding
+    right_line_y = left_line_y
+    right_line_x2 = (w-tw)/2 + tw + line_padding + line_width
+    right_line_y2 = left_line_y
+    draw.line([(left_line_x,left_line_y),(left_line_x2,left_line_y2)],fill=(255,255,255,255),width=line_height)
+    draw.line([(right_line_x,right_line_y),(right_line_x2,right_line_y2)],fill=(255,255,255,255),width=line_height)
+    el = int((len(slines)+1)*ssh)
+
+    ew = el*4
+    eh = el*4
+    ellipse = Image.new('RGBA',(ew,eh),(255,255,255,0))
+    draw2 = ImageDraw.Draw(ellipse)
+    esize = 10
+    for i in range(0,esize):
+        draw2.ellipse([(0+i,0+i),(ew-i,eh-i)], outline=(255,255,255,255))
+    ellipse = ellipse.resize((el,el),Image.ANTIALIAS)
+    base.paste(ellipse,box=(int((w-el)/2),100+sth+50),mask=ellipse)
+    snh = 100+sth+50+ssh/2
+    for sline in slines:       
+        draw.text(((w-ssw)/2,snh), sline, fill=(255,255,255,255), font=singer_fnt)
+        snh = snh+ssh
+    draw.multiline_text(((w-mcw)/2,320), content, font=content_fnt, fill=(255,255,255,255), align='center', spacing=spacing)
+    
+    # get BytesIO
+    msstream = BytesIO()
+    # save image data to output stream
+    base.save(msstream,"png")
+    # release memory
+    base.close()
+    return HttpResponse(msstream.getvalue(),content_type="image/png") 
+
 def template5(request,font):
     w = 640
     h = 1080

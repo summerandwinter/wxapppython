@@ -14,6 +14,8 @@ from gevent.pywsgi import WSGIServer
 from cloud import engine
 cf = configparser.ConfigParser() 
 cf.read("config.conf") 
+os.environ["WX_APP_ID"] = cf.get("wx", "app_id") 
+os.environ["WX_APP_SECRET"] = cf.get("wx", "app_secret") 
 os.environ["WXA_APP_ID"] = cf.get("wxa", "app_id") 
 os.environ["WXA_APP_SECRET"] = cf.get("wxa", "app_secret") 
 os.environ["QINIU_ACCESS_KEY"] = cf.get("qiniu", "access_key") 
