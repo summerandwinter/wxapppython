@@ -451,6 +451,8 @@ def template6(request):
     slines = wrap(singer, 1)
     tw,wh = title_fnt.getsize(title)
     base = Image.open("640.jpg").convert('RGBA')
+    base = base.filter(ImageFilter.GaussianBlur(4))
+    #base = base.filter(ImageFilter.SMOOTH)
     w, h = base.size
     draw = ImageDraw.Draw(base)
     draw.multiline_text(((w-tw)/2,100), title, font=title_fnt, fill=(255,255,255,255), align='center')
