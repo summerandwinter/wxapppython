@@ -19,6 +19,10 @@ import os
 class Todo(Object):
     pass
 
+class Card(Object):
+    pass
+    
+
 
 def index(request):
     return render(request, 'index.html', {})
@@ -51,7 +55,17 @@ def imageNew(request):
     msstream=BytesIO()
     image_data.save(msstream,"jpeg")
     image_data.close()
-    return HttpResponse(msstream.getvalue(),content_type="image/jpeg")  
+    return HttpResponse(msstream.getvalue(),content_type="image/jpeg") 
+class CardView(View):
+    def get(self, request):
+        try:
+            cards = Query(Card).descending('createdAt').find()
+        except LeanCloudError as e:
+            if e.code == 101:
+                cards = []
+            else:
+                raise e
+        return render(request,'cards.html',{'cards':cards})    
 
 class TodoView(View):
     def get(self, request):

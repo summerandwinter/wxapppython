@@ -1,15 +1,15 @@
-﻿import urllib  
+import urllib  
 import sys  
 import http.cookiejar   
 from leancloud import Object
 from leancloud import Query
 import json
 import leancloud
-
 APP_ID = 'xxx'
 MASTER_KEY = 'xxx'
 
 leancloud.init(APP_ID, master_key=MASTER_KEY)
+
 cookie = http.cookiejar.CookieJar()                                        #保存cookie，为登录后访问其它页面做准备  
 cjhdr  =  urllib.request.HTTPCookieProcessor(cookie)               
 opener = urllib.request.build_opener(cjhdr)  

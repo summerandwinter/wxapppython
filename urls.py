@@ -2,18 +2,22 @@
 
 from django.conf.urls import url
 from django.views import static
+from django.contrib import admin
 
 import views
 import images
 import card
 
 urlpatterns = [
+    url(r'^admin/', admin.site.urls),
     url(r'^$', views.index),
     url(r'^time/?$', views.current_time),
     url(r'^todos/?$', views.TodoView.as_view(), name='todo_list'),
+    url(r'^cards/?$', views.CardView.as_view(), name='card_list'),
     url(r'^imageNew/?$', views.imageNew),
     url(r'^static/(?P<path>.*)$', static.serve, {'document_root': 'static'}),
     url(r'^card/generate/(?P<id>\w+)$', card.generate),
+    #url(r'^card/list?$', card.list),
     url(r'^card/preview/(?P<id>\w+).png$', card.preview),
     url(r'^image/text?$', images.image_text),
     url(r'^os/?$', views.os_info),

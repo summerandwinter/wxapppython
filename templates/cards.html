@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Cards</title>
+    <link rel="stylesheet" href="/static/style.css" type="text/css">
+  </head>
+  <body>
+    <div id="container">
+      <h1>{{ title }}</h1>
+      <form action="/todos" method="POST">
+        {% csrf_token %}
+        <input type="text" name="content" />
+        <input type="submit" value="新增" />
+      </form>
+      <ul>
+        {% for card in cards %}
+        <li>
+        <img src="{{ card.attributes.img_url }}"/>
+        <h3>{{ card.attributes.name }}</h3>
+        <p>{{ card.attributes.content }}</p>
+        </li>
+
+        {% endfor %}
+      </ul>
+    </div>
+  </body>
+</html>
