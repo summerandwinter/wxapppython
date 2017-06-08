@@ -14,6 +14,7 @@ from leancloud.errors import LeanCloudError
 from PIL import Image, ImageColor, ImageFont, ImageDraw, ImageFilter
 from io import BytesIO
 from textwrap import *
+import requests
 import re
 import leancloud
 import urllib 
@@ -147,8 +148,10 @@ def template(card,msstream):
     h = 635+th+ch+crh+ah;
     base = Image.new('RGBA',(w,h),(255,255,255,255))
     draw = ImageDraw.Draw(base)
+    print(url)
 
-    file = BytesIO(urllib.request.urlopen(url).read())
+    #print(r.content)
+    file = BytesIO(requests.get(url).content)
     photo = Image.open(file).convert('RGBA')
 
     (pw, ph) = photo.size
@@ -173,7 +176,6 @@ def template(card,msstream):
     base.save(msstream,"jpeg")
     # release memory
     base.close()
-    return (w,h)
 
 
 
@@ -252,7 +254,6 @@ def template2(card,msstream):
     base.save(msstream,"jpeg")
     # release memory
     base.close()
-    return (w,h)
 
 def template3(card,msstream):
     w = 640
@@ -316,7 +317,6 @@ def template3(card,msstream):
     base.save(msstream,"jpeg")
     # release memory
     base.close()
-    return (w,h)
 
 
 def template4(card,msstream):
@@ -406,12 +406,12 @@ def template4(card,msstream):
     base.save(msstream,"jpeg")
     # release memory
     base.close()
-    return (w,h)
 
 
 print('getting total count:')
 query = Query(Card)
 query.does_not_exist('photo')
+#query.exists('db_num')
 query.limit(1000)
 count = query.count()
 progress = 0
@@ -426,3 +426,5 @@ for card in cardlist:
     progress = progress+1
 else:
     print('no data')
+
+

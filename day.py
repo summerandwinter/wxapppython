@@ -7,8 +7,8 @@ import json
 import leancloud
 import requests
 
-APP_ID = '-gzGzoHsz'
-MASTER_KEY = ''
+APP_ID = '7C7MfP24LboNSLeOnbh112nT-gzGzoHsz'
+MASTER_KEY = 'bIEoNy5pSWoqvC3qq0vpGMT1'
 
 leancloud.init(APP_ID, master_key=MASTER_KEY)
 
@@ -16,24 +16,23 @@ cookie = http.cookiejar.CookieJar()                                        #保�
 cjhdr  =  urllib.request.HTTPCookieProcessor(cookie)               
 opener = urllib.request.build_opener(cjhdr)  
   
-  
+userid = '590be679ac502e006cdc63c0'
+username = '569dil3zuypnrpjqwe97l3qkw'  
 url = "http://api.markapp.cn/v160/moviepics/everyday"  
-count = 10
-start = 0;
-size = 80
 data = {}
 data['muid']= 'dVIEu/888Jh4v339tTlNfw=='
 data['uid']= '23497'
-r = requests.post(url, json = data)
+r = requests.post(url, data = data)
 json_obj = {}
 if(r.status_code == requests.codes.ok):
 	json_obj = r.json()
-	print(json_obj)
+	#print(json_obj)
 else:
     print('network error')
 if json_obj['status'] == 1:
 	datalist = []
-	Card = Object.extend('Card')    
+	Card = Object.extend('Card')  
+	User = Object.extend('_User')  
 	for item in json_obj['data']:    
 		card = Card()
 		card.set('cid',int(item['id'])) 
@@ -44,13 +43,19 @@ if json_obj['status'] == 1:
 		card.set('img_url',item['img_url'])    
 		card.set('name',item['name']) 
 		card.set('publish',True) 
-		card.set('temlate',1)   
+		card.set('template',1)
+		user = User.create_without_data(userid)
+		card.set('user',user)
+		card.set('username',username)
 		query = Card.query
 		query.equal_to('cid', int(item['id']))
 		count = query.count()
-		print('saving'+item['name'])
+		#print('saving'+item['name'])
 		if(count == 0):
-			Card.save(card) 		 
+			Card.save(card)
+			print(item['name']+' 保存成功')
+		else:
+		    print(item['name']+' 已存在，跳过') 		 
 	else:
 		print('end')  
 	    
