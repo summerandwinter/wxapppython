@@ -21,6 +21,8 @@ class Todo(Object):
 
 class Card(Object):
     pass
+class _User(Object):
+    pass    
     
 
 
@@ -65,7 +67,18 @@ class CardView(View):
                 cards = []
             else:
                 raise e
-        return render(request,'cards.html',{'cards':cards})    
+        return render(request,'cards.html',{'cards':cards})
+
+class UserView(View):
+    def get(self, request):
+        try:
+            users = Query(_User).descending('createdAt').find()
+        except LeanCloudError as e:
+            if e.code == 101:
+                cards = []
+            else:
+                raise e
+        return render(request,'users.html',{'users':users})              
 
 class TodoView(View):
     def get(self, request):

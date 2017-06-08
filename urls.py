@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^time/?$', views.current_time),
     url(r'^todos/?$', views.TodoView.as_view(), name='todo_list'),
     url(r'^cards/?$', views.CardView.as_view(), name='card_list'),
+    url(r'^users/?$', views.UserView.as_view(), name='user_list'),
     url(r'^imageNew/?$', views.imageNew),
     url(r'^static/(?P<path>.*)$', static.serve, {'document_root': 'static'}),
     url(r'^card/generate/(?P<id>\w+)$', card.generate),

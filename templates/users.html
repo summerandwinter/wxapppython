@@ -1,0 +1,27 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Users</title>
+    <link rel="stylesheet" href="/static/style.css" type="text/css">
+  </head>
+  <body>
+    <div id="container">
+      <h1>{{ title }}</h1>
+      <form action="/todos" method="POST">
+        {% csrf_token %}
+        <input type="text" name="content" />
+        <input type="submit" value="新增" />
+      </form>
+      <ul>
+        {% for user in users %}
+        <li>
+        <img src="{{ user.attributes.avatarUrl }}"/>
+        <h3>{{ user.attributes.nickName }}</h3>
+        <p>{{ user.attributes.username }}</p>
+        </li>
+
+        {% endfor %}
+      </ul>
+    </div>
+  </body>
+</html>

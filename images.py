@@ -125,7 +125,7 @@ def filter_unsharp_mask(request):
 
 def wxacode(request):
     
-    msstream = BytesIO(wx.get_wxacode_unlimit('123456'));
+    msstream = BytesIO(wx.get_wxacode_unlimit('593351b361ff4b389e37087e'));
     return HttpResponse(msstream.getvalue(),content_type="image/jpeg")        
 
 def template(request):
