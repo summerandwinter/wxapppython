@@ -22,12 +22,64 @@ from qiniu import Auth, set_default, etag, PersistentFop, build_op, op_save, Zon
 from qiniu import put_data, put_file, put_stream
 from qiniu import BucketManager, build_batch_copy, build_batch_rename, build_batch_move, build_batch_stat, build_batch_delete
 from qiniu import urlsafe_base64_encode, urlsafe_base64_decode
-import os 
+import os
+import datetime
+from weixin import weixin
+
 
 class Card(Object):
     pass
 class Photo(Object):
-    pass    
+    pass
+
+def temlate_send(card):
+    user = card.get('user')
+    openId = user.get('authData').get('lc_weapp').get('openid')
+    #lc_weapp = authData.get('lc_weapp')
+    #openId = lc_weapp.get('openid')
+    template_id = 'kiS8i4JzVR8mZ-gRnS1gaawCLa_dGe0zhy1JFnJTwPE'
+    form_id = card.get('formId')
+    payload = {}
+    payload['touser'] = openId
+    payload['template_id'] = template_id
+    payload['form_id'] = form_id
+    payload['page'] = 'pages/detail/detail?id='+card.id
+    payload['emphasis_keyword'] = 'keyword3.DATA'
+    keyword1 = { "value": "码图"}
+    keyword2 = { "value":  datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+    keyword3 = { "value": "审核通过"}
+    keyword4 = { "value": "用户创作"} 
+    data = { "keyword1": keyword1, "keyword2": keyword2, "keyword3": keyword3, "keyword4": keyword4 }
+    payload['data'] = data
+    app_id = os.environ["WXA_APP_ID"]
+    app_secret = os.environ["WXA_APP_SECRET"]
+    wx = weixin(app_id,app_secret)  
+    ret = wx.template_send(payload);
+    return ret
+
+def review(request,id):
+    try:
+        query = Card.query
+        query.include('user')
+        card = query.get(id)
+        if(card):
+            update = Card.create_without_data(id)
+            update.set('publish',True)
+            if(card.get('formId')):
+                data = temlate_send(card)
+                #return HttpResponse(json.dumps(str(data)),content_type="application/json")
+            ret = {'code':200,'message':'审核通过'}
+            return HttpResponse(json.dumps(ret),content_type="application/json")
+        else:
+            ret = {'code':203,'message':'词卡不存在'}
+            return HttpResponse(json.dumps(ret),content_type="application/json")              
+    except LeanCloudError as e:
+        if e.code == 101:  # 服务端对应的 Class 还没创建
+            card = ''
+            return HttpResponse(e,content_type="application/json") 
+        else:
+            raise e
+            return HttpResponse(e,content_type="application/json") 
 
 def generate(request,id):
     try:

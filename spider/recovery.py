@@ -57,6 +57,7 @@ count = query.count()
 print('Total:'+str(count))
 filelist = query.find()
 cardquery = Card.query
+userquery = _User.query
 for file in filelist:
     meta = file.get('metaData')
     username = meta['owner']
@@ -66,15 +67,17 @@ for file in filelist:
     count = cardquery.count()
 
     if(count>0):
-    	card = cardquery.first()
-    	data = Card.create_without_data(card.get('objectId'))
-    	data.set('username',username)
-    	data.save()
-    	print(card.get('objectId'))
+        card = cardquery.first()
+        data = Card.create_without_data(card.get('objectId'))
+        data.set('username',username)
+        user = userquery.get(username)
+        data.set('user',user)
+        data.save()
+         
     #user = userquery.first()
     #print(user.get('id'))
     #print(card)
-    print(username)
+    #print(username)
     
 else:
     print('end')

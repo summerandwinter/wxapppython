@@ -18,6 +18,7 @@ urlpatterns = [
     url(r'^imageNew/?$', views.imageNew),
     url(r'^static/(?P<path>.*)$', static.serve, {'document_root': 'static'}),
     url(r'^card/generate/(?P<id>\w+)$', card.generate),
+    url(r'^card/review/(?P<id>\w+)$', card.review),
     #url(r'^card/list?$', card.list),
     url(r'^card/preview/(?P<id>\w+).png$', card.preview),
     url(r'^image/text?$', images.image_text),

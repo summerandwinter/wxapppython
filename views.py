@@ -61,24 +61,32 @@ def imageNew(request):
 class CardView(View):
     def get(self, request):
         try:
-            cards = Query(Card).descending('createdAt').find()
+            query = Query(Card)
+            query.not_equal_to('publish',True)
+            count = query.count()
+            query.include('user')
+            cards = query.descending('createdAt').find()
         except LeanCloudError as e:
             if e.code == 101:
                 cards = []
             else:
                 raise e
-        return render(request,'cards.html',{'cards':cards})
+        return render(request,'cards.html',{'cards':cards,'count':count})
 
 class UserView(View):
     def get(self, request):
         try:
-            users = Query(_User).descending('createdAt').find()
+            query = Query(_User)
+            query.exists('avatarUrl')
+            count = query.count()
+            query.limit(1000)
+            users = query.descending('createdAt').find()
         except LeanCloudError as e:
             if e.code == 101:
                 cards = []
             else:
                 raise e
-        return render(request,'users.html',{'users':users})              
+        return render(request,'users.html',{'users':users,'count':count})              
 
 class TodoView(View):
     def get(self, request):

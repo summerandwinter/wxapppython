@@ -2,3 +2,157 @@
     margin: 0 auto;
     width: 960px;
 }
+/** users **/
+.summary{
+	width:100%;
+}
+.summary .total{
+	width: 200px;
+	font-size: 30px;
+	text-align: center;
+	color: #d43939;
+	margin: 20px auto;
+}
+.summary .total span{
+	font-size: 14px;
+	color: #aaa;
+}
+.user-list{
+	list-style: none;
+	margin: 0;
+	border: 0;
+	padding: 0;
+}
+.user-list::after{
+	content:'';
+	display: block;
+	clear: both;
+}
+.user-list li{
+	width:20%;
+	list-style: none;
+	margin: 0;
+	border: 0;
+	padding: 0;
+	display: block;
+	float: left;
+}
+.user-item{
+	width:100%;
+	height: 150px;
+	margin-bottom: 20px;
+}
+.user-item .avatar{
+	width:100px;
+	margin:0 auto;
+}
+.user-item .avatar img{
+	width:100px;
+	height:100px;
+}
+.user-item .meta{
+	margin:20px 0;
+}
+.user-item .meta .nickname{
+	text-align: center;
+	font-size: 14px;
+	color: #aaa;
+}
+
+
+/** cards **/
+.summary{
+	width:100%;
+}
+.summary .total{
+	width: 200px;
+	font-size: 30px;
+	text-align: center;
+	color: #d43939;
+	margin: 20px auto;
+}
+.summary .total span{
+	font-size: 14px;
+	color: #aaa;
+}
+.card-list{
+	list-style: none;
+	margin: 0;
+	border: 0;
+	padding: 0;
+}
+.card-list::after{
+	content:'';
+	display: block;
+	clear: both;
+}
+.card-list li{
+	width:30%;
+	list-style: none;
+	margin: 0 10px;
+	border: 0;
+	padding: 0;
+	display: block;
+	float: left;
+}
+.card-item{
+	width:100%;
+	height: 450px;
+	margin-bottom: 20px;
+}
+.photo{
+	width:100%;
+	height: 200px;
+	overflow: hidden;
+	margin:0 auto;
+}
+.photo img{
+	width:100%;
+}
+.meta{
+	margin:20px 0;
+}
+.meta .title{
+	text-align: center;
+	font-size: 16px;
+	height: 20px;
+	line-height: 20px;
+	font-weight: 800;
+	color: #000;
+}
+
+.meta .content{
+	text-align: left;
+	height: 80px;
+	overflow: hidden;
+	font-size: 14px;
+	line-height: 20px;
+	margin-top: 20px;
+	color: #aaa;
+}
+.userinfo::after{
+	content: '';
+	display: block;
+	clear: both;
+}
+.userinfo .avatar{
+	display: block;
+	float: left;
+	width: 50px;
+	height: 50px;
+}
+.userinfo .avatar img{
+	width: 50px;
+	height: 50px;
+	border-radius: 5px;
+}
+.userinfo .info{
+	display: block;
+	float: left;
+	height: 50px;
+}
+.userinfo .info .nickname{
+	font-size: 14px;
+	color: #aaa;
+	padding-left: 10px;
+}

@@ -34,21 +34,80 @@ def hello(**params):
         return 'Hello, LeanCloud!'
 
 @engine.define
+def explore(**params):
+    page = 1
+    if 'page' in params:
+        page = params['page']
+    count = 10
+    if 'count' in params:
+        count = params['count']    
+    skip = (page-1)*count
+    query = Card.query
+    query.include('user')
+    query.not_equal_to('publish', False)
+    query.add_descending('likes')
+    count = query.count()
+    query.limit(10)
+    query.skip(skip)
+    cards = query.find()
+    ret = {}
+    ret['code'] = 200
+    dataList = []
+    for card in cards:
+        data = {}
+        data['objectId'] = card.id
+        data['name'] = card.get('name')
+        data['content'] = card.get('content')
+        data['img_url'] = card.get('img_url')
+        data['shares'] = card.get('shares')
+        data['likes'] = card.get('likes')
+        #data['createdAt'] = card.get('createdAt')
+        #data['updatedAt'] = card.get('updatedAt')
+        user = {}
+        _user = card.get('user')
+        user['id'] = _user.id
+        user['nickName'] = _user.get('nickName')
+        user['avatarUrl'] = _user.get('avatarUrl')
+        user['gender'] = _user.get('gender')
+        user['city'] = _user.get('city')
+        user['province'] = _user.get('province')
+        data['user'] = user
+        dataList.append(data)
+    #ret['data'] = cards
+    return dataList
+
+@engine.define
 def maker(**params):
     name = params['name']
     content = params['content']
     file = params['file']
     img_url = params['img_url']
     username = params['username']
-    template = params['template']
+    template = params['template']    
     card = Card()
     card.set('name',name)
     card.set('content',content)
     card.set('img_url',img_url)
     card.set('username',username)
     card.set('template',template)
+    if 'formId' in params:
+        formId = params['formId']
+        card.set('formId',formId)
     image = _File.create_without_data(file)
+    if 'userid' not in params:
+        query = User.query
+        query.equal_to('username',username)
+        user = query.first()
+        card.set('user',user)
+    else:
+        userid = params['userid']
+        user = User.create_without_data(userid)
+        card.set('user',user)       
+    card.set('user',user)
     card.set('image',image)
+    card.set('publish',False)
+    card.set('likes',0)
+    card.set('shares',0)
     card.save()
     stat = generateCloud(card)
     if stat == 'ok':
