@@ -368,10 +368,10 @@ def likes(**params):
 @engine.define
 def templates(**params):
     data = [
-        {'id':1,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template.png'},
-        {'id':2,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template2.png'},
-        {'id':3,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template3.png'},
-        {'id':4,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template4.png'}
+        {'tid':1,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template.png'},
+        {'tid':2,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template2.png'},
+        {'tid':3,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template3.png'},
+        {'tid':4,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template4.png'}
     ]
     result = {'code':200,'data':data}
     return result
