@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^card/review/(?P<id>\w+)$', card.review),
     #url(r'^card/list?$', card.list),
     url(r'^card/preview/(?P<id>\w+).png$', card.preview),
+    url(r'^card/download/(?P<id>\w+).png$', card.download),
     url(r'^image/text?$', images.image_text),
     url(r'^os/?$', views.os_info),
     url(r'^image/wxacode?$', images.wxacode),

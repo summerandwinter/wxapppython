@@ -24,28 +24,50 @@ class Card(Object):
 class User(Object):
     pass
 class _File(Object):
-    pass           
+    pass
+class Share(Object):
+    pass
+class Download(Object):
+    pass
+class View(Object):
+    pass
 
-@engine.define
-def hello(**params):
-    if 'name' in params:
-        return 'Hello, {}!'.format(params['name'])
-    else:
-        return 'Hello, LeanCloud!'
+def timebefore(d):  
+    chunks = (  
+                       (60 * 60 * 24 * 365, u'年'),  
+                       (60 * 60 * 24 * 30, u'月'),  
+                       (60 * 60 * 24 * 7, u'周'),  
+                       (60 * 60 * 24, u'天'),  
+                       (60 * 60, u'小时'),  
+                       (60, u'分钟'),  
+     )  
+    #如果不是datetime类型转换后与datetime比较
+    if not isinstance(d, datetime.datetime):
+        d = datetime.datetime(d.year,d.month,d.day)
+    now = datetime.datetime.now()
+    delta = now - d
+    #忽略毫秒
+    before = delta.days * 24 * 60 * 60 + delta.seconds
+    #刚刚过去的1分钟
+    if before <= 60:
+        return '刚刚'
+    if(d.year != now.year):
+        return '%s年%s月%s日'%(d.year,d.month,d.day)
+    if(before > 60 * 60 * 24 * 7):
+        return '%s月%s日'%(d.month,d.day) 
+    for seconds,unit in chunks:
+        count = before // seconds
+        if count != 0:
+            break
+    return str(count)+unit+"前"
 
-@engine.define
-def explore(**params):
-    page = 1
-    if 'page' in params:
-        page = params['page']
-    count = 10
-    if 'count' in params:
-        count = params['count']    
-    skip = (page-1)*count
+def query_work(uid,page):
+    pageSize = 10  
+    skip = (page-1)*pageSize
+    user = User.create_without_data(uid)
     query = Card.query
-    query.include('user')
-    query.not_equal_to('publish', False)
-    query.add_descending('likes')
+    query.add_descending('createdAt')
+    query.equal_to('user',user)
     count = query.count()
     query.limit(10)
     query.skip(skip)
@@ -55,14 +77,56 @@ def explore(**params):
     dataList = []
     for card in cards:
         data = {}
-        data['objectId'] = card.id
+        data['id'] = card.id
         data['name'] = card.get('name')
         data['content'] = card.get('content')
         data['img_url'] = card.get('img_url')
         data['shares'] = card.get('shares')
         data['likes'] = card.get('likes')
-        #data['createdAt'] = card.get('createdAt')
-        #data['updatedAt'] = card.get('updatedAt')
+        data['time'] = timebefore(card.get('createdAt').replace(tzinfo=None))
+        dataList.append(data)
+    ret['count'] = count
+    ret['hasMore'] = count > (page*pageSize) 
+    ret['page'] = page    
+    ret['data'] = dataList
+    return ret
+
+@engine.define
+def hello(**params):
+    if 'name' in params:
+        return 'Hello, {}!'.format(params['name'])
+    else:
+        return 'Hello, LeanCloud!'
+
+
+@engine.define
+def explore(**params):
+    page = 1
+    if 'page' in params:
+        page = params['page']
+    pageSize = 10  
+    skip = (page-1)*pageSize
+    query = Card.query
+    query.include('user')
+    query.equal_to('publish', True)
+    query.add_descending('createdAt')
+    count = query.count()
+    query.limit(10)
+    query.skip(skip)
+    cards = query.find()
+    ret = {}
+    ret['code'] = 200
+    dataList = []
+    for card in cards:
+        data = {}
+        data['id'] = card.id
+        data['name'] = card.get('name')
+        data['content'] = card.get('content')
+        data['img_url'] = card.get('img_url')
+        data['shares'] = card.get('shares')
+        data['likes'] = card.get('likes')
+        print(card.get('createdAt'))
+        data['time'] = timebefore(card.get('createdAt').replace(tzinfo=None))
         user = {}
         _user = card.get('user')
         user['id'] = _user.id
@@ -73,8 +137,55 @@ def explore(**params):
         user['province'] = _user.get('province')
         data['user'] = user
         dataList.append(data)
-    #ret['data'] = cards
-    return dataList
+    ret['count'] = count
+    ret['hasMore'] = count > (page*pageSize) 
+    ret['page'] = page    
+    ret['data'] = dataList
+    return ret
+
+@engine.define
+def selection(**params):
+    page = 1
+    if 'page' in params:
+        page = params['page']
+    pageSize = 10  
+    skip = (page-1)*pageSize
+    query = Card.query
+    query.include('user')
+    query.equal_to('publish', True)
+    query.add_descending('likes')
+    count = query.count()
+    query.limit(10)
+    query.skip(skip)
+    cards = query.find()
+    ret = {}
+    ret['code'] = 200
+    dataList = []
+    for card in cards:
+        data = {}
+        data['id'] = card.id
+        data['name'] = card.get('name')
+        data['content'] = card.get('content')
+        data['img_url'] = card.get('img_url')
+        data['shares'] = card.get('shares')
+        data['likes'] = card.get('likes')
+        print(card.get('createdAt'))
+        data['time'] = timebefore(card.get('createdAt').replace(tzinfo=None))
+        user = {}
+        _user = card.get('user')
+        user['id'] = _user.id
+        user['nickName'] = _user.get('nickName')
+        user['avatarUrl'] = _user.get('avatarUrl')
+        user['gender'] = _user.get('gender')
+        user['city'] = _user.get('city')
+        user['province'] = _user.get('province')
+        data['user'] = user
+        dataList.append(data)
+    ret['count'] = count
+    ret['hasMore'] = count > (page*pageSize) 
+    ret['page'] = page    
+    ret['data'] = dataList
+    return ret
 
 @engine.define
 def maker(**params):
@@ -117,7 +228,153 @@ def maker(**params):
     	result = {'code':500,'message':'failed'}
     	return result
     
+@engine.define
+def profile(**params):
+    uid = params['id']
+    likequery = Like.query
+    user = User.create_without_data(uid)
+    likequery.equal_to('user',user)
+    like_count = likequery.count()
+    workquery = Card.query
+    workquery.equal_to('user',user)
+    work_count = workquery.count();
+    count = {}
+    count['likes'] = like_count
+    count['works'] = work_count
+    page = 1
+    data = query_work(uid,page)
+    result = {'code':200,'count':count,'works':data}
+    return result
 
+@engine.define
+def isLiked(**params):
+    if 'id' not in params:
+        return False
+    if 'uid' not in params:
+        return False
+    id = params['id']
+    uid = params['uid']
+    user = User.create_without_data(uid)
+    card = Card.create_without_data(id)
+    query = Like.query
+    query.equal_to('user',user)
+    query.equal_to('card',user)
+    count = query.count()
+    return count>0
+
+
+        
+
+@engine.define
+def detail(**params):
+    try:
+        id = params['id']
+        query = Card.query
+        query.include('photo')
+        query.include('user')
+        card = query.get(id)
+        data = {}
+        data['id'] = card.id
+        data['name'] = card.get('name')
+        data['content'] = card.get('content')
+        data['img_url'] = card.get('img_url')
+        data['shares'] = card.get('shares')
+        data['likes'] = card.get('likes')
+        data['time'] = timebefore(card.get('createdAt').replace(tzinfo=None))
+        user = {}
+        _user = card.get('user')
+        user['id'] = _user.id
+        user['nickName'] = _user.get('nickName')
+        user['avatarUrl'] = _user.get('avatarUrl')
+        user['gender'] = _user.get('gender')
+        user['city'] = _user.get('city')
+        user['province'] = _user.get('province')
+        data['user'] = user
+        photo = card.get('photo');
+        data['preview'] = photo.get('url')
+        data['download'] = 'https://timesand.leanapp.cn/card/download/'+id+'.png'
+        isliked = False
+        if 'uid' in params:
+            uid = params['uid']
+            likequery = Like.query
+            likequery.equal_to('card',card)
+            user = User.create_without_data(uid)
+            likequery.equal_to('user',user)
+            count = likequery.count()
+            if count >0 :
+                isliked = True
+        data['isLiked'] = isliked
+        result = {'code':200,'data':data}
+        return result
+    except LeanCloudError as e:
+        result = {'code':e.code,'message':e.error}
+        return result
+
+@engine.define
+def works(**params):
+    uid = params['id']
+    page = 1
+    if 'page' in params:
+        page = params['page']
+    return query_work(uid,page)
+
+@engine.define
+def likes(**params):
+    uid = params['id']
+    page = 1
+    if 'page' in params:
+        page = params['page']
+    pageSize = 10  
+    skip = (page-1)*pageSize
+    user = User.create_without_data(uid)
+    query = Like.query
+    query.include('card')
+    query.include('user')
+    query.equal_to('user', user)
+    query.add_descending('createdAt')
+    count = query.count()
+    query.limit(10)
+    query.skip(skip)
+    likes = query.find()
+    ret = {}
+    ret['code'] = 200
+    dataList = []
+    for like in likes:
+        data = {}
+        card = like.get('card')
+        data['id'] = card.id
+        data['name'] = card.get('name')
+        data['content'] = card.get('content')
+        data['img_url'] = card.get('img_url')
+        data['shares'] = card.get('shares')
+        data['likes'] = card.get('likes')
+        data['time'] = timebefore(card.get('createdAt').replace(tzinfo=None))
+        user = {}
+        _user = like.get('user')
+        user['id'] = _user.id
+        user['nickName'] = _user.get('nickName')
+        user['avatarUrl'] = _user.get('avatarUrl')
+        user['gender'] = _user.get('gender')
+        user['city'] = _user.get('city')
+        user['province'] = _user.get('province')
+        data['user'] = user
+        dataList.append(data)
+    ret['count'] = count
+    ret['hasMore'] = count > (page*pageSize) 
+    ret['page'] = page    
+    ret['data'] = dataList
+    return ret
+    
+@engine.define
+def templates(**params):
+    data = [
+        {'id':1,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template.png'},
+        {'id':2,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template2.png'},
+        {'id':3,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template3.png'},
+        {'id':4,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template4.png'}
+    ]
+    result = {'code':200,'data':data}
+    return result
 
 @engine.define
 def like(**params):
@@ -169,6 +426,77 @@ def cancel(**params):
     	return 'no'    
 
 
+@engine.define
+def share(**params):
+    try:
+        if 'id' not in params:
+            return {'code':301,'message':'参数错误'}
+        share = Share()
+        id = params['id']
+        card = Card.create_without_data(id)
+        share.set('card',card)
+        if 'uid' in params:
+            uid = params['uid']
+            user =  User.create_without_data(uid)
+            share.set('user',user)
+        if 'tickets' in params:
+            tickets = params['tickets']
+            share.set('tickets',tickets)
+        share.save()
+        card.increment('shares')
+        card.fetch_when_save = True
+        card.save()
+        return {'code':200,'message':'ok'}
+    except LeanCloudError as e:
+        print(e)
+        result = {'code':e.code,'message':e.error}
+        return result
+
+@engine.define
+def download(**params):
+    try:
+        if 'id' not in params:
+            return {'code':301,'message':'参数错误'}
+        download = Download()
+        id = params['id']
+        card = Card.create_without_data(id)
+        download.set('card',card)
+        if 'uid' in params:
+            uid = params['uid']
+            user =  User.create_without_data(uid)
+            download.set('user',user)
+        download.save()
+        card.increment('downloads')
+        card.fetch_when_save = True
+        card.save()
+        return {'code':200,'message':'ok'}
+    except LeanCloudError as e:
+        print(e)
+        result = {'code':e.code,'message':e.error}
+        return result
+
+@engine.define
+def view(**params):
+    try:
+        if 'id' not in params:
+            return {'code':301,'message':'参数错误'}
+        view = View()
+        id = params['id']
+        card = Card.create_without_data(id)
+        view.set('card',card)
+        if 'uid' in params:
+            uid = params['uid']
+            user =  User.create_without_data(uid)
+            view.set('user',user)
+        view.save()
+        card.increment('views')
+        card.fetch_when_save = True
+        card.save()
+        return {'code':200,'message':'ok'}
+    except LeanCloudError as e:
+        print(e)
+        result = {'code':e.code,'message':e.error}
+        return result
 
 @engine.before_save('Todo')
 def before_todo_save(todo):

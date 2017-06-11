@@ -31,6 +31,8 @@ class Card(Object):
     pass
 class Photo(Object):
     pass
+class User(Object):
+    pass    
 
 def temlate_send(card):
     user = card.get('user')
@@ -211,7 +213,31 @@ def preview(request,id):
             return HttpResponse(e,content_type="text/plain") 
         else:
             raise e
+            return HttpResponse(e,content_type="text/plain")
+
+def download(request,id):
+    try:
+        card = Query(Card).get(id)
+        tid = card.get('template')
+        msstream = BytesIO()
+        if tid == 1:
+            template(card,msstream)
+        elif tid == 2:
+            template2(card,msstream)
+        elif tid == 3:
+            template3(card,msstream)
+        elif tid == 4:
+            template4(card,msstream)
+        else:
+            template(card,msstream)  
+        return HttpResponse(msstream.getvalue(),content_type="image/png") 
+    except LeanCloudError as e:
+        if e.code == 101:  # 服务端对应的 Class 还没创建
+            card = ''
             return HttpResponse(e,content_type="text/plain") 
+        else:
+            raise e
+            return HttpResponse(e,content_type="text/plain")              
 
 def template(card,msstream):
     w = 640
