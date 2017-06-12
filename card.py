@@ -86,7 +86,7 @@ def review(request,id):
 def generate(request,id):
     try:
         card = Query(Card).get(id)
-        tid = card.get('temlate')
+        tid = card.get('template')
         if(card.get('photo') is None):
             msstream = BytesIO()
             if tid == 1:
@@ -140,7 +140,7 @@ def generate(request,id):
 
 def generateCloud(card):
     try:
-        tid = card.get('temlate')
+        tid = card.get('template')
         if(card.get('photo') is None):
             msstream = BytesIO()
             if tid == 1:
