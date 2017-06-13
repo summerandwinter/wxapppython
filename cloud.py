@@ -14,6 +14,7 @@ from PIL import Image, ImageColor, ImageFont, ImageDraw, ImageFilter
 from io import BytesIO
 from textwrap import *
 from card import *
+import requests
 
 engine = Engine(get_wsgi_application())
 
@@ -497,6 +498,18 @@ def view(**params):
         print(e)
         result = {'code':e.code,'message':e.error}
         return result
+
+@engine.define
+def movies(**params):
+    id = params['id']
+    payload = {}
+    url = 'http://api.markapp.cn/v160/Mobile/movies/'+id
+    r = requests.get(url, params=payload, verify=False)
+    if(r.status_code == requests.codes.ok):
+        res = r.json()
+        return res
+    else:
+        return {'status':0,'message':'error'}    
 
 @engine.before_save('Todo')
 def before_todo_save(todo):
