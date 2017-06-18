@@ -14,14 +14,16 @@ from leancloud.errors import LeanCloudError
 from PIL import Image, ImageColor, ImageFont, ImageDraw, ImageFilter
 from io import BytesIO
 from textwrap import *
+import requests
+from haishoku.haishoku import Haishoku
 import re
 import os
 from weixin import weixin
 
 
-app_id = os.environ["WXA_APP_ID"]
-app_secret = os.environ["WXA_APP_SECRET"] 
-wx = weixin(app_id,app_secret)  
+#app_id = os.environ["WXA_APP_ID"]
+#app_secret = os.environ["WXA_APP_SECRET"] 
+#wx = weixin(app_id,app_secret)  
 
 # 模糊
 def filter_blur(request):  
@@ -597,6 +599,122 @@ def template5(request,font):
     base.close()
     return HttpResponse(msstream.getvalue(),content_type="image/png") 
 
+def book(request):
+    w = 490*2
+    h = 740*2
+    banner_w = 490*2
+    banner_h = 265*2
+    cover_w = 135*2
+    cover_h = 200*2
+    cover_top = 120*2
+    cover_left = int((w-cover_w)/2)
+    block_w = 32*2
+    block_h = 12*2
+    block_left = 97*2
+    block_top = 160*2 + banner_h
+    max_content_w = 310*2
+
+    title_left = 97*2
+    title_top = block_top+block_h+20*2 
+    title = '高窗'
+    title_font = ImageFont.truetype('font/zh/YueSong.ttf',28*2)
+    single_title_w,single_title_h= title_font.getsize("已")
+    titles = wrap(title, 1)
+    title_formated = ''
+    temp = ''
+    for word in titles:
+        temp += word
+        temp_w,temp_h = title_font.getsize(temp)
+        title_formated += word
+        if temp_w > max_content_w + single_title_w:
+            title_formated +=  '\n'
+            temp = ''
+    tlines = len(title_formated.split('\n'))
+    title_h = tlines * single_title_h + (tlines -1) * 28*2
+
+    division_left = 97*2
+    division_top = title_top+single_title_h+12*2
+    division = '╱'
+    division_font = ImageFont.truetype('font/zh/PingFang.ttf',20*2)
+    single_division_w,single_division_h = division_font.getsize("已")
+
+    author_left = 97*2
+    author_top = division_top + title_h
+    author = '作者：雷蒙德.钱德勒'
+    author_font = ImageFont.truetype('font/zh/YueSong.ttf',14*2)
+    single_author_w,single_author_h = author_font.getsize("已")
+    authors = wrap(author, 1)
+    author_formated = ''
+    temp = ''
+    for word in authors:
+        temp += word
+        temp_w,temp_h = author_font.getsize(temp)
+        author_formated += word
+        if temp_w > max_content_w + single_author_w:
+            author_formated +=  '\n'
+            temp = ''
+    alines = len(author_formated.split('\n'))
+    author_h = alines * single_author_h + (alines -1) * 14*2
+
+    content_left = 97*2
+    content_top = author_top + author_h + 12*2
+    content = '故事原型：加州石油大亨爱德华.多赫尼之子被杀案，及蒂波特山油田丑闻'
+    content_formated = ''
+    content_font = ImageFont.truetype('font/zh/YueSong.ttf',14*2)
+    single_content_w,single_content_h = content_font.getsize("已")
+    contents = wrap(content, 1)
+    temp = ''
+    for word in contents:
+        temp += word
+        temp_w,temp_h = content_font.getsize(temp)
+        content_formated += word
+        if temp_w > max_content_w + single_content_w:
+            content_formated +=  '\n'
+            temp = ''
+
+    print(content_formated)
+    
+    clines = len(content_formated.split('\n'))
+    content_h = clines * single_author_h + (clines -1) * 14*2
+    h = content_top + content_h + 150*2
+
+    base = Image.new('RGBA',(w,h),(255,255,255,255))
+    draw = ImageDraw.Draw(base)
+    draw.rectangle([(0,0),(banner_w,banner_h)],(26, 26, 26, 255))
+
+    url = "https://img3.doubanio.com/lpic/s27028282.jpg"
+    file = BytesIO(requests.get(url).content)
+    photo = Image.open(file).convert('RGBA')
+
+    (pw, ph) = photo.size
+    if pw/ph>cover_w/cover_h:
+        box = ((pw-ph*cover_w/cover_h)/2,0,(pw+ph*cover_w/cover_h)/2,ph)
+    else:
+        box = (0,(ph-cover_w*cover_h/cover_w)/2,pw,(ph+pw*cover_h/cover_w)/2)  
+
+    photo = photo.crop(box)
+    photo = photo.resize((cover_w,cover_h),Image.ANTIALIAS)
+    base.paste(photo,box=(cover_left,cover_top))
+
+    dominant = Haishoku.getDominant(file)
+
+    draw.rectangle([(block_left,block_top),(block_left+block_w,block_top+block_h)],dominant)
+    draw.multiline_text((title_left,title_top), title_formated, font=title_font, fill=(70,70,70), align='left',spacing=15*2)
+    draw.multiline_text((division_left,division_top), division, font=division_font, fill=(70,70,70), align='left',spacing=0)
+    draw.multiline_text((author_left,author_top), author_formated, font=author_font, fill=(90,90,90), align='left',spacing=15*2)
+    draw.multiline_text((content_left,content_top), content_formated, font=content_font, fill=(90,90,90), align='left',spacing=12*2)
+    print(dominant)
+    #base.show()
+    # get BytesIO
+    msstream = BytesIO()
+    # save image data to output stream
+    base.save(msstream,"jpeg")
+    # release memory
+    base.close()
+    return HttpResponse(msstream.getvalue(),content_type="image/jpeg") 
+
+
+
 def image_text(request): 
     fontSize = 40
     w = 640
@@ -654,4 +772,4 @@ def image_text(request):
     out.close()
     return HttpResponse(msstream.getvalue(),content_type="image/png")  
 
-
+#book()
