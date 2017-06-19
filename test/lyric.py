@@ -22,18 +22,21 @@ def parse_lyric(_lyric):
 	return _lyrics		   
 
 
-def main():
+def get_lyric(songmid):
     url = "https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg"
     headers = {'referer': 'https://y.qq.com/portal/player.html','user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.110 Safari/537.36'}
-    songmid = '001qrn6E3cqJih'
+    #songmid = '001qrn6E3cqJih'
     payload = {'songmid':songmid,'pcachetime':'1497862380731','g_tk':'5381','oginUin':0,'hostUin':0,'format':'jsonp','inCharset':'utf8','outCharset':'utf-8','notice':0,'platform':'yqq','needNewCode':0}
     r = requests.get(url,params = payload,headers=headers)
+    lyrics = []
     if(r.status_code == 200):
     	ret = loads_jsonp(r.text)
     	if(ret['code'] == 0):
     		lyric = base64.b64decode(ret['lyric']).decode('utf-8')
     		lyrics = parse_lyric(lyric)
-    		print(lyrics)
-
+    		#print(lyrics)
+    return lyrics
 if __name__ == "__main__":
-    main()
+    songmid = '001qrn6E3cqJih'
+    lyrics =  get_lyric(songmid)
+    print(lyrics)
