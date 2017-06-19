@@ -156,3 +156,42 @@
 	color: #aaa;
 	padding-left: 10px;
 }
+.options{
+	margin-top: 10px;
+}
+.options::after{
+	content: '';
+	display: block;
+	clear: both;
+}
+.pass{
+	width: 50%;
+	height: 40px;
+    color: #fff;
+    text-align: center;
+    line-height: 40px;
+    cursor: pointer;
+	float: left;
+	background-color: #066906;
+}
+
+.recall{
+	width: 50%;
+	height: 40px;
+    color: #fff;
+    text-align: center;
+    line-height: 40px;
+    cursor: pointer;
+	float: left;
+	background-color: #066906;
+}
+.reject{
+	width: 50%;
+	height: 40px;
+    color: #fff;
+    cursor: pointer;
+    text-align: center;
+    line-height: 40px;
+	float: left;
+	background-color: #ce2c2c;
+}

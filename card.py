@@ -34,7 +34,7 @@ class Photo(Object):
 class User(Object):
     pass    
 
-def temlate_send(card):
+def template_send(card):
     user = card.get('user')
     openId = user.get('authData').get('lc_weapp').get('openid')
     #lc_weapp = authData.get('lc_weapp')
@@ -67,8 +67,11 @@ def review(request,id):
         if(card):
             update = Card.create_without_data(id)
             update.set('publish',True)
+            update.set('deleted',False)
+            update.set('publishAt',datetime.datetime.now())
             if(card.get('formId')):
-                data = temlate_send(card)
+                data = template_send(card)
+            update.save()    
                 #return HttpResponse(json.dumps(str(data)),content_type="application/json")
             ret = {'code':200,'message':'审核通过'}
             return HttpResponse(json.dumps(ret),content_type="application/json")
@@ -83,6 +86,57 @@ def review(request,id):
             raise e
             return HttpResponse(e,content_type="application/json") 
 
+def reject(request,id):
+    try:
+        query = Card.query
+        query.include('user')
+        card = query.get(id)
+        if(card):
+            update = Card.create_without_data(id)
+            update.set('deleted',True)
+            update.set('publish',False)
+            #update.set('publishAt',datetime.now())
+            #if(card.get('formId')):
+                #data = template_send(card)
+            update.save()     
+                #return HttpResponse(json.dumps(str(data)),content_type="application/json")
+            ret = {'code':200,'message':'审核通过'}
+            return HttpResponse(json.dumps(ret),content_type="application/json")
+        else:
+            ret = {'code':203,'message':'词卡不存在'}
+            return HttpResponse(json.dumps(ret),content_type="application/json")              
+    except LeanCloudError as e:
+        if e.code == 101:  # 服务端对应的 Class 还没创建
+            card = ''
+            return HttpResponse(e,content_type="application/json") 
+        else:
+            raise e
+            return HttpResponse(e,content_type="application/json")             
+def recall(request,id):
+    try:
+        query = Card.query
+        query.include('user')
+        card = query.get(id)
+        if(card):
+            update = Card.create_without_data(id)
+            update.set('publish',False)
+            #update.set('publishAt',datetime.now())
+            #if(card.get('formId')):
+                #data = template_send(card)
+            update.save()     
+                #return HttpResponse(json.dumps(str(data)),content_type="application/json")
+            ret = {'code':200,'message':'审核通过'}
+            return HttpResponse(json.dumps(ret),content_type="application/json")
+        else:
+            ret = {'code':203,'message':'词卡不存在'}
+            return HttpResponse(json.dumps(ret),content_type="application/json")              
+    except LeanCloudError as e:
+        if e.code == 101:  # 服务端对应的 Class 还没创建
+            card = ''
+            return HttpResponse(e,content_type="application/json") 
+        else:
+            raise e
+            return HttpResponse(e,content_type="application/json")    
 def generate(request,id):
     try:
         card = Query(Card).get(id)

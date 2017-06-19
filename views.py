@@ -63,6 +63,9 @@ class CardView(View):
         try:
             query = Query(Card)
             query.not_equal_to('publish',True)
+            query.not_equal_to('deleted',True)
+            #query.not_equal_to('publish',False)
+            #query.does_not_exist('cid')
             count = query.count()
             query.include('user')
             cards = query.descending('createdAt').find()
@@ -72,6 +75,41 @@ class CardView(View):
             else:
                 raise e
         return render(request,'cards.html',{'cards':cards,'count':count})
+
+class CardPublishedView(View):
+    def get(self, request):
+        try:
+            query = Query(Card)
+            #query.not_equal_to('publish',True)
+            #query.not_equal_to('deleted',True)
+            query.not_equal_to('publish',False)
+            query.does_not_exist('cid')
+            count = query.count()
+            query.include('user')
+            cards = query.descending('createdAt').find()
+        except LeanCloudError as e:
+            if e.code == 101:
+                cards = []
+            else:
+                raise e
+        return render(request,'card_publish.html',{'cards':cards,'count':count})  
+
+class CardDeletedView(View):
+    def get(self, request):
+        try:
+            query = Query(Card)
+            query.not_equal_to('deleted',False)
+            query.does_not_exist('cid')
+            query.limit(1000)
+            count = query.count()
+            query.include('user')
+            cards = query.descending('createdAt').find()
+        except LeanCloudError as e:
+            if e.code == 101:
+                cards = []
+            else:
+                raise e
+        return render(request,'card_deleted.html',{'cards':cards,'count':count})                 
 
 class UserView(View):
     def get(self, request):

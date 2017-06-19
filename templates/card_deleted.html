@@ -8,7 +8,7 @@
   <body>
     <div id="container">
       <div class="summary">
-        <div class="total">{{count}}<span>/待审核</span></div>
+        <div class="total">{{count}}<span>/已删除</span></div>
       </div>
       <ul class="card-list">
         {% for card in cards %}
@@ -26,8 +26,8 @@
             </div>
           </div>
           <div class="options">
-            <div class="pass" data-id="{{  card.attributes.objectId }}">通过</div>
-            <div class="reject" data-id="{{  card.attributes.objectId }}">删除</div>
+            <div class="recall" data-id="{{  card.attributes.objectId }}">重新发布</div>
+            <div class="reject" data-id="{{  card.attributes.objectId }}">永久删除</div>
           </div> 
         </div>
         </li>
@@ -37,18 +37,10 @@
     </div>
   </body>
 <script>
-  $(".pass").on("click",function(e){
-    var id = $(this).data('id');
-    $.get('/card/review/'+id,{},function(data){
-      if(data.code == 200){
-        $('#item'+id).remove()
-      }
 
-    },"json")
-  })
 $(".recall").on("click",function(e){
     var id = $(this).data('id');
-    $.get('/card/recall/'+id,{},function(data){
+    $.get('/card/review/'+id,{},function(data){
       if(data.code == 200){
         $('#item'+id).remove()
       }
@@ -57,12 +49,6 @@ $(".recall").on("click",function(e){
   })  
  $(".reject").on("click",function(e){
     var id = $(this).data('id');
-    $.get('/card/reject/'+id,{},function(data){
-      if(data.code == 200){
-        $('#item'+id).remove()
-      }
-
-    },"json")
   })
 </script>
 </html>
