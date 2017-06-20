@@ -800,11 +800,12 @@ def music():
     draw = ImageDraw.Draw(base)
     
 
-    url = "https://y.gtimg.cn/music/photo_new/T002R500x500M000000jE4g74VS43p.jpg"
+    url = "https://y.gtimg.cn/music/photo_new/T001R150x150M000003CNC9D00CaVx.jpg"
     file = BytesIO(requests.get(url).content)
     photo = Image.open(file).convert('RGBA')
     (pw, ph) = photo.size
-
+    hai = Haishoku.loadHaishoku(file)
+    per,color = hai.palette[1]
 
 
     if pw/ph>w/h:
@@ -814,8 +815,8 @@ def music():
 
     banner_cover = photo.crop(bbox)
     banner_cover = banner_cover.resize((w,h),Image.ANTIALIAS)
-    banner_cover = banner_cover.filter(ImageFilter.GaussianBlur(60))
-    banner_wrap = Image.new('RGBA',(w,h),(255, 255, 255, 125))
+    banner_cover = banner_cover.filter(ImageFilter.GaussianBlur(40))
+    banner_wrap = Image.new('RGBA',(w,h),(255, 255, 255, 153))
     banner_cover = Image.alpha_composite(banner_cover,banner_wrap)
     base.paste(banner_cover,box=(0,0))
 
@@ -846,6 +847,7 @@ def image_text(request):
     # text = fill(text,11)
     # make a blank image as the background
     base = Image.new('RGBA',(w,h),(255,255,255,255))
+    txt = Image.new('RGBA',(w,h),(255,255,255,0))
     # get an image
     photo = Image.open("photo.jpg").convert('RGBA')
 
@@ -890,6 +892,65 @@ def image_text(request):
     out.save(msstream,"png")
     # release memory
     out.close()
-    return HttpResponse(msstream.getvalue(),content_type="image/png")  
+    return HttpResponse(msstream.getvalue(),content_type="image/png")
 
-#music()
+def test():
+    w = 640
+    h = 862
+    iw = 600
+    ih = 340
+    bw = 300
+    bh = 300
+    title = '每日一言'
+    content = '觉得最失落的，大概是你还在为你们的未来出谋划策，他却已慢慢后退不再与你并肩。' 
+    spacing = 20
+    content = fill(content, 15)
+    author = '- 天天码图 -' 
+    copyright = '微信小程序「天天码图」'  
+    title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
+    content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 30)
+    author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
+    copyright_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
+    base = Image.new('RGBA',(w,h),(255,255,255,255))
+    draw = ImageDraw.Draw(base)
+    tw,th = draw.multiline_textsize(title, font=title_fnt)
+    aw,ah = draw.multiline_textsize(author, font=author_fnt)
+    cw,ch = draw.multiline_textsize(content, font=content_fnt, spacing=spacing)
+    crw,crh = draw.multiline_textsize(copyright, font=copyright_fnt)
+    h = 695+th+ch+crh+ah;
+    base = Image.new('RGBA',(w,h),(255,255,255,255))
+    draw = ImageDraw.Draw(base)
+
+    
+
+    photo = Image.open("640.jpg").convert('RGBA')
+
+    pw, ph = photo.size
+
+    if pw > ph:
+        box = ((pw-ph*bw/bh)/2,0,(pw+ph*bw/bh)/2,ph)
+    else:
+        box = (0,(ph-pw*bh/bw)/2,pw,(ph+pw*bh/bw)/2)  
+    title = '成都.薛之谦'
+    title_font = ImageFont.truetype('font/zh/YueSong.ttf',28*8)
+    photo = photo.crop(box)
+    photo = photo.resize((bw*4,bh*4))
+
+    circle = Image.new('L', (bw*4, bh*4), 0)
+    draw = ImageDraw.Draw(circle)
+    draw.multiline_text((100,100), title, font=title_font, fill=255, align='left',spacing=15*2)
+    #draw.ellipse((0, 0, bw*4, bh*4), fill=255)
+    alpha = Image.new('L', (bw*4, bh*4), 255)
+    #alpha.show()
+    alpha.paste(circle, (0, 0))
+    photo.putalpha(alpha)
+    #photo.show()
+    photo = photo.resize((bw,bh),Image.ANTIALIAS)
+
+    base.paste(photo,box=(170,120),mask=photo)
+
+   
+    base.show()   
+
+if __name__ == "__main__":
+    test()

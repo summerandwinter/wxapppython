@@ -127,8 +127,8 @@ def music(data,msstream):
 
     banner_cover = photo.crop(bbox)
     banner_cover = banner_cover.resize((w,h),Image.ANTIALIAS)
-    banner_cover = banner_cover.filter(ImageFilter.GaussianBlur(60))
-    banner_wrap = Image.new('RGBA',(w,h),(255, 255, 255, 125))
+    banner_cover = banner_cover.filter(ImageFilter.GaussianBlur(40))
+    banner_wrap = Image.new('RGBA',(w,h),(255, 255, 255, 153))
     banner_cover = Image.alpha_composite(banner_cover,banner_wrap)
     base.paste(banner_cover,box=(0,0))
 
