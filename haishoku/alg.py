@@ -27,9 +27,14 @@ def group_by_accuracy(sorted_tuple, accuracy=3):
         ]
 
     for color_tuple in sorted_tuple:
-        r_tmp_i = color_tuple[1][0]
-        g_tmp_i = color_tuple[1][1]
-        b_tmp_i = color_tuple[1][2]
+        if isinstance(color_tuple[1], int):
+            r_tmp_i = color_tuple[1]
+            g_tmp_i = color_tuple[1]
+            b_tmp_i = color_tuple[1]
+        else:
+            r_tmp_i = color_tuple[1][0]
+            g_tmp_i = color_tuple[1][1]
+            b_tmp_i = color_tuple[1][2]
         r_idx = 0 if r_tmp_i < 85 else 1 if r_tmp_i < 170 else 2
         g_idx = 0 if g_tmp_i < 85 else 1 if g_tmp_i < 170 else 2
         b_idx = 0 if b_tmp_i < 85 else 1 if b_tmp_i < 170 else 2
@@ -52,9 +57,14 @@ def get_weighted_mean(grouped_image_color):
 
     for item in grouped_image_color:
         sigma_count += item[0]
-        sigma_r += item[1][0] * item[0]
-        sigma_g += item[1][1] * item[0]
-        sigma_b += item[1][2] * item[0]
+        if isinstance(item[1],int):
+            sigma_r += item[1] * item[0]
+            sigma_g += item[1] * item[0]
+            sigma_b += item[1] * item[0]
+        else:
+            sigma_r += item[1][0] * item[0]
+            sigma_g += item[1][1] * item[0]
+            sigma_b += item[1][2] * item[0]
 
     r_weighted_mean = int(sigma_r / sigma_count)
     g_weighted_mean = int(sigma_g / sigma_count)

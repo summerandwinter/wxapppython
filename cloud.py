@@ -105,8 +105,10 @@ def parse_lyric(_lyric):
     lyrics = _lyric.split('\n')
     _lyrics = []
     time_reg = '\[\d*:\d*((\.|\:)\d*)*\]'
+    ignore_reg= '.*[：|-].*'
     for line in lyrics:
-        if re.match(time_reg,line,re.S) is not None:
+        #print(re.match(ignore_reg,line,re.S))
+        if re.match(time_reg,line,re.S) is not None and re.match(ignore_reg,line,re.S) is None:
             newline = re.sub(time_reg,'',line,0)
             if len(newline) > 0:
                 _lyrics.append(newline)

@@ -718,9 +718,9 @@ def music():
     w = 490*2
     h = 740*2
     banner_w = 490*2
-    banner_h = 265*2
-    cover_w = 200*2
-    cover_h = 200*2
+    banner_h = 235*2
+    cover_w = 140*2
+    cover_h = 140*2
     cover_top = 120*2
     cover_left = 100*2
     block_w = 32*2
@@ -794,7 +794,7 @@ def music():
     
     clines = len(content_formated.split('\n'))
     content_h = clines * single_author_h + (clines -1) * 14*2
-    h = content_top + content_h + 100*2
+    h = max(h,content_top + content_h + 100*2)
 
     base = Image.new('RGBA',(w,h),(255,255,255,255))
 
@@ -804,11 +804,11 @@ def music():
 
     
 
-    url = "https://y.gtimg.cn/music/photo_new/T001R150x150M000003CNC9D00CaVx.jpg"
+    url = "https://y.gtimg.cn/music/photo_new/T002R300x300M000002qBBpu2q0vL3.jpg"
     file = BytesIO(requests.get(url).content)
     photo = Image.open(file).convert('RGBA')
     (pw, ph) = photo.size
-
+    r,g,b = Haishoku.getDominant(file)
 
 
     if pw/ph>w/h:
@@ -828,7 +828,7 @@ def music():
     banner_cover = photo.crop(bbox)
     banner_cover = banner_cover.resize((w,h),Image.ANTIALIAS)
     banner_blur = banner_cover.filter(ImageFilter.GaussianBlur(40))
-    banner_wrap = Image.new('RGBA',(w,h),(255, 255, 255, 153))
+    banner_wrap = Image.new('RGBA',(w,h),(255, 255, 255, 193))
     banner_mask = Image.alpha_composite(banner_blur,banner_wrap)
 
     

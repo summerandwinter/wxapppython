@@ -23,9 +23,9 @@ def music(data,msstream):
     w = 490*2
     h = 740*2
     banner_w = 490*2
-    banner_h = 265*2
-    cover_w = 200*2
-    cover_h = 200*2
+    banner_h = 235*2
+    cover_w = 140*2
+    cover_h = 140*2
     cover_top = 120*2
     cover_left = 100*2
     block_w = 32*2
@@ -39,7 +39,7 @@ def music(data,msstream):
 
     title = '成都'
     if data['title']:
-    	title = data['title']
+        title = data['title']
     title_font = ImageFont.truetype('font/zh/YueSong.ttf',28*2)
     single_title_w,single_title_h= title_font.getsize("已")
     titles = wrap(title, 1)
@@ -61,7 +61,7 @@ def music(data,msstream):
     author_top = banner_h + 10 *2
     author = '赵雷'
     if data['author']:
-    	author = data['author']
+        author = data['author']
     author_font = ImageFont.truetype('font/zh/YueSong.ttf',14*2)
     single_author_w,single_author_h = author_font.getsize("已")
     authors = wrap(author, 1)
@@ -81,7 +81,7 @@ def music(data,msstream):
     content_top = banner_h + 150*2
     content = '让我掉下眼泪的\n不止昨夜的酒\n让我依依不舍的\n不止你的温柔\n余路还要走多久\n你攥着我的手\n让我感到为难的\n是挣扎的自由'
     if data['content']:
-    	content = data['content']
+        content = data['content']
     content_formated = ''
     content_font = ImageFont.truetype('font/zh/YueSong.ttf',18*2)
     single_content_w,single_content_h = content_font.getsize("已")
@@ -105,19 +105,23 @@ def music(data,msstream):
     
     clines = len(content_formated.split('\n'))
     content_h = clines * single_author_h + (clines -1) * 14*2
-    h = content_top + content_h + 100*2
+    h = max(h,content_top + content_h + 100*2)
 
     base = Image.new('RGBA',(w,h),(255,255,255,255))
-    draw = ImageDraw.Draw(base)
+
+    
     
 
-    url = "https://y.gtimg.cn/music/photo_new/T002R500x500M000000jE4g74VS43p.jpg"
+
+    
+
+    url = "https://y.gtimg.cn/music/photo_new/T001R150x150M000003CNC9D00CaVx.jpg"
     if data['url']:
-    	url = data['url']
+        url = data['url']
     file = BytesIO(requests.get(url).content)
     photo = Image.open(file).convert('RGBA')
     (pw, ph) = photo.size
-
+    r,g,b = Haishoku.getDominant(file)
 
 
     if pw/ph>w/h:
@@ -125,12 +129,26 @@ def music(data,msstream):
     else:
         bbox = (0,(ph-pw*h/w)/2,pw,(ph+pw*h/w)/2)        
 
+    
+    txt = Image.new('L', (w,h), 255) 
+    draw = ImageDraw.Draw(txt) 
+
+    alpha = Image.new('L', (w,h), 0) 
+    draw.multiline_text((title_left,title_top), title_formated, font=title_font, fill=0, align='left',spacing=15*2)
+    draw.multiline_text((author_left,author_top), author_formated, font=author_font, fill=0, align='left',spacing=15*2)
+    draw.multiline_text((content_left,content_top), content_formated, font=content_font, fill=0, align='left',spacing=12*2)
+    alpha.paste(txt, (0, 0))
     banner_cover = photo.crop(bbox)
     banner_cover = banner_cover.resize((w,h),Image.ANTIALIAS)
-    banner_cover = banner_cover.filter(ImageFilter.GaussianBlur(40))
-    banner_wrap = Image.new('RGBA',(w,h),(255, 255, 255, 153))
-    banner_cover = Image.alpha_composite(banner_cover,banner_wrap)
-    base.paste(banner_cover,box=(0,0))
+    banner_blur = banner_cover.filter(ImageFilter.GaussianBlur(40))
+    banner_wrap = Image.new('RGBA',(w,h),(255-r, 255-g, 255-b, 153))
+    banner_mask = Image.alpha_composite(banner_blur,banner_wrap)
+
+    
+    banner_mask.putalpha(alpha) 
+    banner_blur.paste(banner_mask,box=(0,0),mask=banner_mask)
+
+    base.paste(banner_blur,box=(0,0))
 
     
     if pw/ph>cover_w/cover_h:
@@ -141,11 +159,6 @@ def music(data,msstream):
     cover = photo.crop(box)
     cover = cover.resize((cover_w,cover_h),Image.ANTIALIAS)
     base.paste(cover,box=(cover_left,cover_top))
-  
-    draw.multiline_text((title_left,title_top), title_formated, font=title_font, fill=(0,0,0), align='left',spacing=15*2)
-    draw.multiline_text((author_left,author_top), author_formated, font=author_font, fill=(10,10,10), align='left',spacing=15*2)
-    draw.multiline_text((content_left,content_top), content_formated, font=content_font, fill=(0,0,0), align='left',spacing=12*2)
-    #base.show()
 
     # save image data to output stream
     base.save(msstream,"jpeg")
