@@ -798,7 +798,10 @@ def music():
 
     base = Image.new('RGBA',(w,h),(255,255,255,255))
 
-    
+    txt = Image.new('L', (w,h), 0) 
+    draw = ImageDraw.Draw(txt) 
+
+    alpha = Image.new('L', (w,h), 255) 
     
 
 
@@ -817,25 +820,22 @@ def music():
         bbox = (0,(ph-pw*h/w)/2,pw,(ph+pw*h/w)/2)        
 
     
-    txt = Image.new('L', (w,h), 255) 
-    draw = ImageDraw.Draw(txt) 
 
-    alpha = Image.new('L', (w,h), 0) 
-    draw.multiline_text((title_left,title_top), title_formated, font=title_font, fill=0, align='left',spacing=15*2)
-    draw.multiline_text((author_left,author_top), author_formated, font=author_font, fill=0, align='left',spacing=15*2)
-    draw.multiline_text((content_left,content_top), content_formated, font=content_font, fill=0, align='left',spacing=12*2)
-    alpha.paste(txt, (0, 0))
+    draw.multiline_text((title_left,title_top), title_formated, font=title_font, fill=255, align='left',spacing=15*2)
+    draw.multiline_text((author_left,author_top), author_formated, font=author_font, fill=255, align='left',spacing=15*2)
+    draw.multiline_text((content_left,content_top), content_formated, font=content_font, fill=255, align='left',spacing=12*2)
+   
     banner_cover = photo.crop(bbox)
     banner_cover = banner_cover.resize((w,h),Image.ANTIALIAS)
-    banner_blur = banner_cover.filter(ImageFilter.GaussianBlur(40))
+    banner_cover = banner_cover.filter(ImageFilter.GaussianBlur(40))
     banner_wrap = Image.new('RGBA',(w,h),(255, 255, 255, 153))
-    banner_mask = Image.alpha_composite(banner_blur,banner_wrap)
-
+    banner_cover = Image.alpha_composite(banner_cover,banner_wrap)
     
-    banner_mask.putalpha(alpha) 
-    banner_blur.paste(banner_mask,box=(0,0),mask=banner_mask)
+    alpha.paste(txt, (0, 0))
+    banner_cover.putalpha(alpha) 
+    base.paste(banner_cover,box=(0,0),mask=banner_cover)
 
-    base.paste(banner_blur,box=(0,0))
+    #base.paste(banner_cover,box=(0,0))
 
     
     if pw/ph>cover_w/cover_h:
@@ -997,26 +997,22 @@ def alphacomposite():
     
 def circle_new():
  
-    ima = Image.open("photo.jpg").convert("RGBA")
-    ima2 = Image.open("photo.jpg").convert("RGBA")
+    ima = Image.open("photo.jpg").convert("RGBA") 
 
-    ima = ima.filter(ImageFilter.GaussianBlur(40))
     size = ima.size 
     r2 = min(size[0], size[1]) 
     if size[0] != size[1]: 
-        ima = ima.resize((r2, r2), Image.ANTIALIAS)
-    base = Image.new('RGBA',(r2,r2),(255,255,255)) 
-    base2 = Image.new('RGBA',(r2,r2),(255,255,255,125))     
+        ima = ima.resize((r2, r2), Image.ANTIALIAS) 
     title = '成都.薛之谦'
     title_font = ImageFont.truetype('font/zh/YueSong.ttf',28*8)
-    #base = Image.new('RGBA',(r2,r2),0)
-    circle = Image.new('L', (r2, r2), 255) 
+    base = Image.new('RGBA',(r2,r2),(255,255,255,255))
+    circle = Image.new('L', (r2, r2), 0) 
     draw = ImageDraw.Draw(circle) 
-    draw.multiline_text((0,0), title, font=title_font, fill=0, align='left',spacing=15*2)
-    alpha = Image.new('L', (r2, r2), 0) 
+    draw.multiline_text((0,0), title, font=title_font, fill=255, align='left',spacing=15*2)
+    alpha = Image.new('L', (r2, r2), 255) 
     alpha.paste(circle, (0, 0)) 
-    ima.putalpha(alpha)
-    ima2.paste(ima,box=(0,0),mask=ima)
-    ima2.save('test_circle.png')
+    ima.putalpha(alpha) 
+    base.paste(ima,box=(0,0),mask=ima)
+    base.save('test_circle.png')
 if __name__ == "__main__":
     music()
