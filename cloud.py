@@ -14,10 +14,12 @@ from PIL import Image, ImageColor, ImageFont, ImageDraw, ImageFilter
 from io import BytesIO
 from textwrap import *
 from card import *
+from music import Music
 import requests
 import base64
 import re
 import json
+from datetime import datetime,timezone
 
 engine = Engine(get_wsgi_application())
 
@@ -36,6 +38,8 @@ class Download(Object):
 class View(Object):
     pass
 
+
+
 def timebefore(d):  
     chunks = (  
                        (60 * 60 * 24 * 365, u'年'),  
@@ -46,9 +50,9 @@ def timebefore(d):
                        (60, u'分钟'),  
      )  
     #如果不是datetime类型转换后与datetime比较
-    if not isinstance(d, datetime.datetime):
-        d = datetime.datetime(d.year,d.month,d.day)
-    now = datetime.datetime.now()
+    if not isinstance(d, datetime):
+        d = datetime(d.year,d.month,d.day)
+    now = datetime.now(timezone.utc)
     delta = now - d
     #忽略毫秒
     before = delta.days * 24 * 60 * 60 + delta.seconds
@@ -64,6 +68,50 @@ def timebefore(d):
         if count != 0:
             break
     return str(count)+unit+"前"
+
+@engine.define
+def explore(**params):
+    page = 1
+    if 'page' in params:
+        page = params['page']
+    pageSize = 10  
+    skip = (page-1)*pageSize
+    query = Card.query
+    query.include('user')
+    query.equal_to('publish', True)
+    query.add_descending('createdAt')
+    count = query.count()
+    query.limit(10)
+    query.skip(skip)
+    cards = query.find()
+    ret = {}
+    ret['code'] = 200
+    dataList = []
+    for card in cards:
+        data = {}
+        data['id'] = card.id
+        data['name'] = card.get('name')
+        data['content'] = card.get('content')
+        data['img_url'] = card.get('img_url')
+        data['shares'] = card.get('shares')
+        data['likes'] = card.get('likes')
+
+        data['time'] = timebefore(card.get('createdAt'))
+        user = {}
+        _user = card.get('user')
+        user['id'] = _user.id
+        user['nickName'] = _user.get('nickName')
+        user['avatarUrl'] = _user.get('avatarUrl')
+        user['gender'] = _user.get('gender')
+        user['city'] = _user.get('city')
+        user['province'] = _user.get('province')
+        data['user'] = user
+        dataList.append(data)
+    ret['count'] = count
+    ret['hasMore'] = count > (page*pageSize) 
+    ret['page'] = page    
+    ret['data'] = dataList
+    return ret
 
 def query_work(uid,page):
     pageSize = 10  
@@ -87,7 +135,7 @@ def query_work(uid,page):
         data['img_url'] = card.get('img_url')
         data['shares'] = card.get('shares')
         data['likes'] = card.get('likes')
-        data['time'] = timebefore(card.get('createdAt').replace(tzinfo=None))
+        data['time'] = timebefore(card.get('createdAt'))
         dataList.append(data)
     ret['count'] = count
     ret['hasMore'] = count > (page*pageSize) 
@@ -149,8 +197,9 @@ def hello(**params):
         return 'Hello, LeanCloud!'
 
 
+
 @engine.define
-def explore(**params):
+def selection(**params):
     page = 1
     if 'page' in params:
         page = params['page']
@@ -159,7 +208,8 @@ def explore(**params):
     query = Card.query
     query.include('user')
     query.equal_to('publish', True)
-    query.add_descending('createdAt')
+    query.add_ascending('views')
+    query.add_ascending('updateAt')
     count = query.count()
     query.limit(10)
     query.skip(skip)
@@ -175,8 +225,7 @@ def explore(**params):
         data['img_url'] = card.get('img_url')
         data['shares'] = card.get('shares')
         data['likes'] = card.get('likes')
-        print(card.get('createdAt'))
-        data['time'] = timebefore(card.get('createdAt').replace(tzinfo=None))
+        data['time'] = timebefore(card.get('createdAt'))
         user = {}
         _user = card.get('user')
         user['id'] = _user.id
@@ -194,48 +243,41 @@ def explore(**params):
     return ret
 
 @engine.define
-def selection(**params):
-    page = 1
-    if 'page' in params:
-        page = params['page']
-    pageSize = 10  
-    skip = (page-1)*pageSize
-    query = Card.query
-    query.include('user')
-    query.equal_to('publish', True)
-    query.add_descending('likes')
-    count = query.count()
-    query.limit(10)
-    query.skip(skip)
-    cards = query.find()
-    ret = {}
-    ret['code'] = 200
-    dataList = []
-    for card in cards:
-        data = {}
-        data['id'] = card.id
-        data['name'] = card.get('name')
-        data['content'] = card.get('content')
-        data['img_url'] = card.get('img_url')
-        data['shares'] = card.get('shares')
-        data['likes'] = card.get('likes')
-        print(card.get('createdAt'))
-        data['time'] = timebefore(card.get('createdAt').replace(tzinfo=None))
-        user = {}
-        _user = card.get('user')
-        user['id'] = _user.id
-        user['nickName'] = _user.get('nickName')
-        user['avatarUrl'] = _user.get('avatarUrl')
-        user['gender'] = _user.get('gender')
-        user['city'] = _user.get('city')
-        user['province'] = _user.get('province')
-        data['user'] = user
-        dataList.append(data)
-    ret['count'] = count
-    ret['hasMore'] = count > (page*pageSize) 
-    ret['page'] = page    
-    ret['data'] = dataList
-    return ret
+def makeMusic(**params):
+    name = params['name']
+    extraData = params['extraData']
+    author = params['author']
+    public = params['public']
+    content = params['content']
+    img_url = params['img_url']
+    db_num = params['db_num']    
+    card = Card()
+    card.set('name',name)
+    card.set('author',author)
+    card.set('content',content)
+    card.set('img_url',img_url)
+    card.set('extraData',json.loads(extraData))
+    card.set('db_num',db_num)
+    if 'formId' in params:
+        formId = params['formId']
+        card.set('formId',formId)
+    userid = params['userid']
+    user = User.create_without_data(userid)
+    card.set('user',user)       
+    card.set('user',user)
+    card.set('type','music')
+    card.set('public',public)
+    card.set('publish',False)
+    card.set('likes',0)
+    card.set('shares',0)
+    card.save()
+    stat = Music.generate(card)
+    if stat == 'ok':
+        result = {'code':200,'data':card.get('objectId')}
+        return result
+    else:
+        result = {'code':500,'message':'failed'}
+        return result
 
 @engine.define
 def maker(**params):
@@ -330,7 +372,7 @@ def detail(**params):
         data['img_url'] = card.get('img_url')
         data['shares'] = card.get('shares')
         data['likes'] = card.get('likes')
-        data['time'] = timebefore(card.get('createdAt').replace(tzinfo=None))
+        data['time'] = timebefore(card.get('createdAt'))
         user = {}
         _user = card.get('user')
         user['id'] = _user.id

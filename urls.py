@@ -7,7 +7,7 @@ from django.contrib import admin
 import views
 import images
 import card
-import music
+from music import Music
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -29,7 +29,7 @@ urlpatterns = [
     url(r'^card/download/(?P<id>\w+).png$', card.download),
     url(r'^image/text?$', images.image_text),
     url(r'^os/?$', views.os_info),
-    url(r'^music/preview/(?P<param>[\w\W]+)$', music.preview),
+    url(r'^music/preview/(?P<param>[\w\W]+)$', Music.preview),
     url(r'^image/wxacode?$', images.wxacode),
     url(r'^image/template?$', images.template),
     url(r'^image/template2?$', images.template2),

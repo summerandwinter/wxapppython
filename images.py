@@ -735,7 +735,7 @@ def music():
     title = '成都'
     title_font = ImageFont.truetype('font/zh/YueSong.ttf',28*2)
     single_title_w,single_title_h= title_font.getsize("已")
-    titles = wrap(title, 1)
+    titles = list(title)
     title_formated = ''
     temp = ''
     for word in titles:
@@ -755,7 +755,7 @@ def music():
     author = '赵雷'
     author_font = ImageFont.truetype('font/zh/YueSong.ttf',14*2)
     single_author_w,single_author_h = author_font.getsize("已")
-    authors = wrap(author, 1)
+    authors = list(author)
     author_formated = ''
     temp = ''
     for word in authors:
@@ -770,13 +770,13 @@ def music():
 
     content_left = 95*2
     content_top = banner_h + 150*2
-    content = '让我掉下眼泪的\n不止昨夜的酒\n让我依依不舍的\n不止你的温柔\n余路还要走多久\n你攥着我的手\n让我感到为难的\n是挣扎的自由'
+    content = 'Just let time go on\n让我 掉下眼泪的\n不止昨夜的酒\n让我依依不舍的\n不止你的温柔\n余路还要走多久\n你攥着我的手\n让我感到为难的\n是挣扎的自由'
     content_formated = ''
     content_font = ImageFont.truetype('font/zh/YueSong.ttf',18*2)
     single_content_w,single_content_h = content_font.getsize("已")
     lines = content.split('\n')
     for line in lines:
-        contents = wrap(line, 1)
+        contents = list(line)
         line_formated = ''
         temp = ''
         for word in contents:
@@ -804,7 +804,7 @@ def music():
 
     
 
-    url = "https://y.gtimg.cn/music/photo_new/T002R300x300M000002qBBpu2q0vL3.jpg"
+    url = "https://y.gtimg.cn/music/photo_new/T002R300x300M000001qHmKU29WX7K.jpg"
     file = BytesIO(requests.get(url).content)
     photo = Image.open(file).convert('RGBA')
     (pw, ph) = photo.size
@@ -827,7 +827,7 @@ def music():
     alpha.paste(txt, (0, 0))
     banner_cover = photo.crop(bbox)
     banner_cover = banner_cover.resize((w,h),Image.ANTIALIAS)
-    banner_blur = banner_cover.filter(ImageFilter.GaussianBlur(40))
+    banner_blur = banner_cover.filter(ImageFilter.GaussianBlur(80))
     banner_wrap = Image.new('RGBA',(w,h),(255, 255, 255, 193))
     banner_mask = Image.alpha_composite(banner_blur,banner_wrap)
 
