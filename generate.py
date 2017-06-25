@@ -411,7 +411,7 @@ def template4(card,msstream):
 print('getting total count:')
 query = Query(Card)
 query.does_not_exist('photo')
-#query.exists('db_num')
+query.exists('db_num')
 query.limit(1000)
 count = query.count()
 progress = 0
