@@ -38,7 +38,7 @@ class Book():
             if(card.get('photo') is None):
                 msstream = BytesIO()
                 data = {'title':card.get('name'),'content':card.get('content'),'author':card.get('author'),'url':card.get('img_url')}
-                Music.music(data,msstream)
+                Book.book(data,msstream)
                 url = os.environ["QINIU_ACCESS_URL"]
                 access_key = os.environ["QINIU_ACCESS_KEY"]
                 secret_key = os.environ["QINIU_SECRET_KEY"]
@@ -178,7 +178,7 @@ class Book():
         if pw/ph>cover_w/cover_h:
             box = ((pw-ph*cover_w/cover_h)/2,0,(pw+ph*cover_w/cover_h)/2,ph)
         else:
-            box = (0,(ph-cover_w*cover_h/cover_w)/2,pw,(ph+pw*cover_h/cover_w)/2)  
+            box = (0,(ph-pw*cover_h/cover_w)/2,pw,(ph+pw*cover_h/cover_w)/2)  
 
         photo = photo.crop(box)
         photo = photo.resize((cover_w,cover_h),Image.ANTIALIAS)

@@ -9,6 +9,7 @@ import images
 import card
 from music import Music
 from book import Book
+from movie import Movie
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -32,6 +33,7 @@ urlpatterns = [
     url(r'^os/?$', views.os_info),
     url(r'^music/preview/(?P<param>[\w\W]+)$', Music.preview),
     url(r'^book/preview/(?P<param>[\w\W]+)$', Book.preview),
+    url(r'^movie/preview/(?P<param>[\w\W]+)$', Movie.preview),
     url(r'^image/wxacode?$', images.wxacode),
     url(r'^image/template?$', images.template),
     url(r'^image/template2?$', images.template2),
