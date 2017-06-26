@@ -125,6 +125,7 @@ class Book():
         author = '作者：雷蒙德.钱德勒'
         if data['author']:
     	    author = data['author']
+        author = '作者：' + author    
         author_font = ImageFont.truetype('font/zh/YueSong.ttf',14*2)
         single_author_w,single_author_h = author_font.getsize("已")
         authors = wrap(author, 1)
