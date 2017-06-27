@@ -220,11 +220,11 @@ class Music():
         draw.multiline_text((author_left,author_top), author_formated, font=author_font, fill=(0,0,0,255), align='left',spacing=15*2)
         draw.multiline_text((content_left,content_top), content_formated, font=content_font, fill=(0,0,0,255), align='left',spacing=12*2)
 
-        base.show()
+        #base.show()
         # save image data to output stream
-        #base.save(msstream,"jpeg")
+        base.save(msstream,"jpeg")
         # release memory
-        #base.close()
+        base.close()
   
     @staticmethod
     def music_v2(data,msstream):
