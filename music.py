@@ -85,14 +85,15 @@ class Music():
         cover_w = 200*2
         cover_h = 200*2
         cover_top = 120*2
-        cover_left = 100*2
+        cover_left = 70*2
+        cover_border = 5*2
         block_w = 32*2
         block_h = 12*2
         block_left = 97*2
         block_top = 160*2 + banner_h
         max_content_w = 300*2
     
-        max_title_w = 190*2
+        max_title_w = 200*2
         title_left = cover_w + cover_left + 10 *2
     
         title = '成都'
@@ -107,14 +108,17 @@ class Music():
             temp += word
             temp_w,temp_h = title_font.getsize(temp)
             title_formated += word
-            if temp_w > max_title_w + single_title_w:
+            if temp_w+ single_title_w > max_title_w :
                 title_formated +=  '\n'
                 temp = ''
         tlines = len(title_formated.split('\n'))
-        title_h = tlines * single_title_h + (tlines -1) * 28*2
+        if tlines > 1:
+            title_h = tlines * single_title_h + (tlines -1) * 15*2
+        else:
+            title_h = tlines * single_title_h
         title_top = banner_h - title_h - 10 *2
     
-        max_author_w = 190*2
+        max_author_w = 200*2
         author_left = cover_w + cover_left+ 10 *2
         author_top = banner_h + 10 *2
         author = '赵雷'
@@ -129,13 +133,13 @@ class Music():
             temp += word
             temp_w,temp_h = author_font.getsize(temp)
             author_formated += word
-            if temp_w > max_author_w + single_author_w:
+            if temp_w + single_author_w > max_author_w :
                 author_formated +=  '\n'
                 temp = ''
         alines = len(author_formated.split('\n'))
         author_h = alines * single_author_h + (alines -1) * 14*2
     
-        content_left = 95*2
+        content_left = cover_left
         content_top = banner_h + 150*2
         content = '让我掉下眼泪的\n不止昨夜的酒\n让我依依不舍的\n不止你的温柔\n余路还要走多久\n你攥着我的手\n让我感到为难的\n是挣扎的自由'
         if 'content' in data:
@@ -152,7 +156,7 @@ class Music():
                 temp += word
                 temp_w,temp_h = content_font.getsize(temp)
                 line_formated += word
-                if temp_w > max_content_w + single_content_w:
+                if temp_w + single_content_w > max_content_w :
                     line_formated += '\n'
                     temp = ''
             if temp != '':
@@ -213,8 +217,9 @@ class Music():
             box = (0,(ph-pw*cover_h/cover_w)/2,pw,(ph+pw*cover_h/cover_w)/2)
     
         cover = photo.crop(box)
-        cover = cover.resize((cover_w,cover_h),Image.ANTIALIAS)
-        base.paste(cover,box=(cover_left,cover_top))
+        cover = cover.resize((cover_w-cover_border*2,cover_h-cover_border*2),Image.ANTIALIAS)
+        draw.rectangle((cover_left,cover_top,cover_left+cover_w,cover_top+cover_h),fill=(255,255,255,255))
+        base.paste(cover,box=(cover_left+cover_border,cover_top+cover_border))
 
         draw.multiline_text((title_left,title_top), title_formated, font=title_font, fill=(255,255,255,255), align='left',spacing=15*2)
         draw.multiline_text((author_left,author_top), author_formated, font=author_font, fill=(0,0,0,255), align='left',spacing=15*2)

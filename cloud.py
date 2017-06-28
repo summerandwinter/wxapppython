@@ -517,7 +517,7 @@ def likes(**params):
         data['img_url'] = card.get('img_url')
         data['shares'] = card.get('shares')
         data['likes'] = card.get('likes')
-        data['time'] = timebefore(card.get('createdAt').replace(tzinfo=None))
+        data['time'] = timebefore(card.get('createdAt'))
         user = {}
         _user = like.get('user')
         user['id'] = _user.id

@@ -84,7 +84,7 @@ class Movie():
         w = 640
         h = 862
         iw = 640
-        ih = 360
+        ih = 427
         content_margin_top = 60
         content_margin_bottom = 0
         title_margin_top = 10

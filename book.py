@@ -96,7 +96,7 @@ class Book():
         title_left = 97*2
         title_top = block_top+block_h+20*2 
         title = '高窗'
-        if data['title']:
+        if 'title' in data:
     	    title = data['title']
 
         title_font = ImageFont.truetype('font/zh/YueSong.ttf',28*2)
@@ -114,16 +114,16 @@ class Book():
         tlines = len(title_formated.split('\n'))
         title_h = tlines * single_title_h + (tlines -1) * 28*2
 
-        division_left = 97*2
+        division_left = 99*2
         division_top = title_top+single_title_h+12*2
         division = '╱'
         division_font = ImageFont.truetype('font/zh/PingFang.ttf',20*2)
         single_division_w,single_division_h = division_font.getsize("已")
 
         author_left = 97*2
-        author_top = division_top + title_h
-        author = '作者：雷蒙德.钱德勒'
-        if data['author']:
+        author_top = division_top + single_division_h +12*2
+        author = '雷蒙德.钱德勒'
+        if 'author' in data:
     	    author = data['author']
         author = '作者：' + author    
         author_font = ImageFont.truetype('font/zh/YueSong.ttf',14*2)
@@ -142,9 +142,9 @@ class Book():
         author_h = alines * single_author_h + (alines -1) * 14*2
 
         content_left = 97*2
-        content_top = author_top + author_h + 12*2
+        content_top = author_top + author_h + 16*2
         content = '故事原型：加州石油大亨爱德华.多赫尼之子被杀案，及蒂波特山油田丑闻'
-        if data['content']:
+        if 'content' in data:
     	    content = data['content']
         content_formated = ''
         content_font = ImageFont.truetype('font/zh/YueSong.ttf',14*2)
@@ -170,7 +170,7 @@ class Book():
         draw.rectangle([(0,0),(banner_w,banner_h)],(26, 26, 26, 255))
 
         url = "https://img3.doubanio.com/lpic/s27028282.jpg"
-        if data['url']:
+        if 'url' in data:
     	    url = data['url']
         file = BytesIO(requests.get(url).content)
         photo = Image.open(file).convert('RGBA')
@@ -227,4 +227,7 @@ class Book():
                 return HttpResponse(e,content_type="text/plain")
     
     
-    
+if __name__ == "__main__":
+    data = {}
+    msstream = BytesIO()
+    Book.book(data,msstream)     
