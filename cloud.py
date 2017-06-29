@@ -71,6 +71,52 @@ def timebefore(d):
             break
     return str(count)+unit+"前"
 
+
+@engine.define
+def index(**params):
+    query = Card.query
+    query.include('user')
+    #query.equal_to('publish', True)
+    query.add_descending('createdAt')
+    count = query.count()
+    query.limit(20)
+    query.skip(0)
+    cards = query.find()
+    ret = {}
+    ret['code'] = 200
+    dataList = []
+    for card in cards:
+        data = {}
+        data['id'] = card.id
+        data['name'] = card.get('name')
+        data['author'] = card.get('author')
+        data['content'] = card.get('content')
+        data['img_url'] = card.get('img_url')
+        data['shares'] = card.get('shares')
+        data['likes'] = card.get('likes')
+        data['type'] = card.get('type')
+        data['shares'] = card.get('shares')
+        data['views'] = card.get('views')
+        data['likes'] = card.get('likes')
+        data['downloads'] = card.get('downloads')
+        data['time'] = timebefore(card.get('createdAt'))
+        user = {}
+        _user = card.get('user')
+        user['id'] = _user.id
+        user['nickName'] = _user.get('nickName')
+        user['avatarUrl'] = _user.get('avatarUrl')
+        user['gender'] = _user.get('gender')
+        user['city'] = _user.get('city')
+        user['province'] = _user.get('province')
+        data['user'] = user
+        dataList.append(data)
+    ret['count'] = 20
+    ret['hasMore'] = False 
+    ret['page'] = 1    
+    ret['data'] = dataList
+    return ret
+
+
 @engine.define
 def explore(**params):
     page = 1
@@ -267,7 +313,7 @@ def makeBook(**params):
     user = User.create_without_data(userid)
     card.set('user',user)       
     card.set('user',user)
-    card.set('type','music')
+    card.set('type','book')
     card.set('public',public)
     card.set('publish',False)
     card.set('likes',0)
@@ -342,7 +388,7 @@ def makeMovie(**params):
     user = User.create_without_data(userid)
     card.set('user',user)       
     card.set('user',user)
-    card.set('type','music')
+    card.set('type','movie')
     card.set('public',public)
     card.set('publish',False)
     card.set('likes',0)
