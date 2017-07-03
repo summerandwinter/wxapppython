@@ -76,8 +76,9 @@ def timebefore(d):
 def index(**params):
     query = Card.query
     query.include('user')
-    #query.equal_to('publish', True)
-    query.add_descending('createdAt')
+    query.equal_to('publish', True)
+    query.add_ascending('views')
+    query.add_ascending('updateAt')
     count = query.count()
     query.limit(20)
     query.skip(0)
@@ -139,11 +140,16 @@ def explore(**params):
         data = {}
         data['id'] = card.id
         data['name'] = card.get('name')
+        data['author'] = card.get('author')
         data['content'] = card.get('content')
         data['img_url'] = card.get('img_url')
         data['shares'] = card.get('shares')
         data['likes'] = card.get('likes')
-
+        data['type'] = card.get('type')
+        data['shares'] = card.get('shares')
+        data['views'] = card.get('views')
+        data['likes'] = card.get('likes')
+        data['downloads'] = card.get('downloads')
         data['time'] = timebefore(card.get('createdAt'))
         user = {}
         _user = card.get('user')
@@ -167,6 +173,7 @@ def query_work(uid,page):
     user = User.create_without_data(uid)
     query = Card.query
     query.add_descending('createdAt')
+    query.equal_to('hidden',False)
     query.equal_to('user',user)
     count = query.count()
     query.limit(10)
@@ -179,10 +186,16 @@ def query_work(uid,page):
         data = {}
         data['id'] = card.id
         data['name'] = card.get('name')
+        data['author'] = card.get('author')
         data['content'] = card.get('content')
         data['img_url'] = card.get('img_url')
         data['shares'] = card.get('shares')
         data['likes'] = card.get('likes')
+        data['type'] = card.get('type')
+        data['shares'] = card.get('shares')
+        data['views'] = card.get('views')
+        data['likes'] = card.get('likes')
+        data['downloads'] = card.get('downloads')
         data['time'] = timebefore(card.get('createdAt'))
         dataList.append(data)
     ret['count'] = count
@@ -269,10 +282,16 @@ def selection(**params):
         data = {}
         data['id'] = card.id
         data['name'] = card.get('name')
+        data['author'] = card.get('author')
         data['content'] = card.get('content')
         data['img_url'] = card.get('img_url')
         data['shares'] = card.get('shares')
         data['likes'] = card.get('likes')
+        data['type'] = card.get('type')
+        data['shares'] = card.get('shares')
+        data['views'] = card.get('views')
+        data['likes'] = card.get('likes')
+        data['downloads'] = card.get('downloads')
         data['time'] = timebefore(card.get('createdAt'))
         user = {}
         _user = card.get('user')
@@ -544,7 +563,7 @@ def likes(**params):
     user = User.create_without_data(uid)
     query = Like.query
     query.include('card')
-    query.include('user')
+    query.include('card.user')
     query.equal_to('user', user)
     query.add_descending('createdAt')
     count = query.count()
@@ -559,13 +578,19 @@ def likes(**params):
         card = like.get('card')
         data['id'] = card.id
         data['name'] = card.get('name')
+        data['author'] = card.get('author')
         data['content'] = card.get('content')
         data['img_url'] = card.get('img_url')
         data['shares'] = card.get('shares')
         data['likes'] = card.get('likes')
+        data['type'] = card.get('type')
+        data['shares'] = card.get('shares')
+        data['views'] = card.get('views')
+        data['likes'] = card.get('likes')
+        data['downloads'] = card.get('downloads')
         data['time'] = timebefore(card.get('createdAt'))
         user = {}
-        _user = like.get('user')
+        _user = card.get('user')
         user['id'] = _user.id
         user['nickName'] = _user.get('nickName')
         user['avatarUrl'] = _user.get('avatarUrl')
@@ -614,7 +639,6 @@ def like(**params):
     else:
     	return 'no'
 
-
 @engine.define
 def cancel(**params):
     card_id = params['cid']
@@ -627,18 +651,75 @@ def cancel(**params):
     count = query.count() 
     
     if count >0 :
-    	try:
-    		likes = query.first()
-    		likes.destroy()
+        try:
+            likes = query.first()
+            likes.destroy()
 
-    		card.increment('likes',-1)
-    		card.fetch_when_save = True
-    		card.save()
-    		return 'ok'
-    	except LeanCloudError as e:
-        	return HttpResponseServerError(e.error)
+            card.increment('likes',-1)
+            card.fetch_when_save = True
+            card.save()
+            return 'ok'
+        except LeanCloudError as e:
+            return HttpResponseServerError(e.error)
     else:
-    	return 'no'    
+        return 'no'  
+
+@engine.define
+def dislike(**params):
+    card_id = params['cid']
+    user_id = params['uid']
+    card = Card.create_without_data(card_id)
+    user = User.create_without_data(user_id)
+    query = Query(Like)
+    query.equal_to('card', card)
+    query.equal_to('user', user) 
+    count = query.count() 
+    
+    if count >0 :
+        try:
+            likes = query.first()
+            likes.destroy()
+
+            card.increment('likes',-1)
+            card.fetch_when_save = True
+            card.save()
+            return {'code':200,'message':'ok'}
+        except LeanCloudError as e:
+            result = {'code':e.code,'message':e.error}
+            return result
+    else:
+        result = {'code':400,'message':'点赞记录不存在'}
+        return result  
+
+
+@engine.define
+def delete(**params):
+    if 'cid' not in params:
+        return {'code':301,'message':'参数错误：卡片ID不存在'}
+    if 'uid' not in params:
+        return {'code':302,'message':'参数错误：用户ID不存在'}        
+    card_id = params['cid']
+    user_id = params['uid']
+    try:
+        query = Query(Card)
+        query.include('user')
+        card = query.get(card_id)
+        if card is not None:
+            user = card.get('user')
+            if user.get('objectId') == user_id:
+                _card = Card.create_without_data(card_id)
+                _card.set('hidden',True)
+                _card.save()
+                return {'code':200,'message':'ok'}
+            else:
+                result = {'code':401,'message':'没有权限'}
+                return result
+        else:
+            result = {'code':400,'message':'卡片不存在'}
+            return result
+    except LeanCloudError as e:
+        result = {'code':e.code,'message':e.error}
+        return result
 
 
 @engine.define
