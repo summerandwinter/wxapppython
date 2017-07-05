@@ -1,5 +1,5 @@
-gevent>=1.0.2
-django>=1.10.0
-leancloud-sdk>=1.0.9
-Pillow >= 4.0.0
-qiniu >= 7.0.7
+gevent == 1.2.1
+django == 1.11
+leancloud-sdk == 1.11.0
+Pillow == 4.1.0
+qiniu == 7.1.2

@@ -311,7 +311,10 @@ def template(card,msstream):
     copyright_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
     base = Image.new('RGBA',(w,h),(255,255,255,255))
     draw = ImageDraw.Draw(base)
-    tw,th = draw.multiline_textsize(title, font=title_fnt)
+    if len(title) > 0:
+        tw,th = draw.multiline_textsize(title, font=title_fnt)
+    else:
+        th =0    
     aw,ah = draw.multiline_textsize(author, font=author_fnt)
     cw,ch = draw.multiline_textsize(content, font=content_fnt, spacing=spacing)
     crw,crh = draw.multiline_textsize(copyright, font=copyright_fnt)
@@ -334,7 +337,8 @@ def template(card,msstream):
     # get a drawing context
     draw = ImageDraw.Draw(base)
     # draw text in the middle of the image, half opacity
-    draw.multiline_text((w/2-tw/2,420), title, font=title_fnt, fill=(0,0,0,255), align='center')
+    if len(title) > 0:
+        draw.multiline_text((w/2-tw/2,420), title, font=title_fnt, fill=(0,0,0,255), align='center')
     draw.multiline_text((w/2-cw/2,420+th+45), content, font=content_fnt, fill=(0,0,0,255), align='center', spacing=spacing)
     draw.multiline_text((w/2-aw/2,420+th+45+ch+115), author, font=author_fnt, fill=(0,0,0,255), align='center')
     draw.multiline_text((w-crw,420+th+45+ch+115+ah+50), copyright, font=copyright_fnt, fill=(189,189,189,255), align='center')

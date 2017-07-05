@@ -427,13 +427,11 @@ def maker(**params):
     content = params['content']
     file = params['file']
     img_url = params['img_url']
-    username = params['username']
     template = params['template']    
     card = Card()
     card.set('name',name)
     card.set('content',content)
     card.set('img_url',img_url)
-    card.set('username',username)
     card.set('template',template)
     if 'formId' in params:
         formId = params['formId']
@@ -525,7 +523,8 @@ def detail(**params):
         user['province'] = _user.get('province')
         data['user'] = user
         photo = card.get('photo');
-        data['preview'] = photo.get('url')
+        if photo is not None:
+            data['preview'] = photo.get('url')
         data['download'] = 'https://timesand.leanapp.cn/card/download/'+id+'.png'
         isliked = False
         if 'uid' in params:
