@@ -128,7 +128,9 @@ def explore(**params):
     query = Card.query
     query.include('user')
     query.equal_to('publish', True)
-    query.add_descending('createdAt')
+    query.exists('publishAt')
+    query.exists('user')
+    query.add_descending('publishAt')
     count = query.count()
     query.limit(10)
     query.skip(skip)
@@ -150,7 +152,7 @@ def explore(**params):
         data['views'] = card.get('views')
         data['likes'] = card.get('likes')
         data['downloads'] = card.get('downloads')
-        data['time'] = timebefore(card.get('createdAt'))
+        data['time'] = timebefore(card.get('publishAt'))
         user = {}
         _user = card.get('user')
         user['id'] = _user.id

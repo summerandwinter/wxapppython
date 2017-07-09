@@ -23,6 +23,7 @@ from qiniu import put_data, put_file, put_stream
 from qiniu import BucketManager, build_batch_copy, build_batch_rename, build_batch_move, build_batch_stat, build_batch_delete
 from qiniu import urlsafe_base64_encode, urlsafe_base64_decode
 import os
+from movie import Movie
 import datetime
 from weixin import weixin
 
@@ -84,7 +85,37 @@ def review(request,id):
             return HttpResponse(e,content_type="application/json") 
         else:
             raise e
+            return HttpResponse(e,content_type="application/json")
+
+def publish(request,id):
+    try:
+        query = Card.query
+        query.include('user')
+        card = query.get(id)
+        if(card):
+            update = Card.create_without_data(id)
+            user = User.create_without_data('590be679ac502e006cdc63c0')
+            update.set('publish',True)
+            update.set('deleted',False)
+            update.set('user',user)
+            update.set('publishAt',datetime.datetime.now())
+            if(card.get('formId')):
+                data = template_send(card)
+            update.save() 
+            Movie.generate(card)   
+                #return HttpResponse(json.dumps(str(data)),content_type="application/json")
+            ret = {'code':200,'message':'审核通过'}
+            return HttpResponse(json.dumps(ret),content_type="application/json")
+        else:
+            ret = {'code':203,'message':'词卡不存在'}
+            return HttpResponse(json.dumps(ret),content_type="application/json")              
+    except LeanCloudError as e:
+        if e.code == 101:  # 服务端对应的 Class 还没创建
+            card = ''
             return HttpResponse(e,content_type="application/json") 
+        else:
+            raise e
+            return HttpResponse(e,content_type="application/json")             
 
 def reject(request,id):
     try:

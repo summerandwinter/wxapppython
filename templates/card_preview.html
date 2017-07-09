@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Cards</title>
+    <link rel="stylesheet" href="/static/style.css" type="text/css">
+  </head>
+  <script src="http://cdn.bootcss.com/jquery/1.10.0/jquery.min.js"></script>
+  <body>
+    <div id="container">
+      <div class="summary">
+        <div class="total">{{count}}<span>/待审核</span></div>
+      </div>
+      <ul class="card-list">
+        {% for card in cards %}
+        <li>
+        <div class="card-item" id="item{{  card.attributes.objectId }}">
+          <div class="photo"><img src="{{ card.attributes.img_url }}"/></div>
+          <div class="meta">
+            <div class="title">{{  card.attributes.name }}</div>
+            <div class="content">{{ card.attributes.content }}</div>
+          </div>
+          <div class="userinfo">
+            <div class="avatar"><img src="{{card.attributes.user.attributes.avatarUrl}}"/></div>
+            <div class="info">
+              <div class="nickname">{{card.attributes.user.attributes.nickName}}</div>
+            </div>
+          </div>
+          <div class="options">
+            <div class="pass" data-id="{{  card.attributes.objectId }}">通过</div>
+            <div class="reject" data-id="{{  card.attributes.objectId }}">删除</div>
+          </div> 
+        </div>
+        </li>
+
+        {% endfor %}
+      </ul>
+    </div>
+  </body>
+<script>
+  $(".pass").on("click",function(e){
+    var id = $(this).data('id');
+    $.get('/card/publish/'+id,{},function(data){
+      if(data.code == 200){
+        $('#item'+id).remove()
+      }
+
+    },"json")
+  })
+$(".recall").on("click",function(e){
+    var id = $(this).data('id');
+    $.get('/card/recall/'+id,{},function(data){
+      if(data.code == 200){
+        $('#item'+id).remove()
+      }
+
+    },"json")
+  })  
+ $(".reject").on("click",function(e){
+    var id = $(this).data('id');
+    $.get('/card/reject/'+id,{},function(data){
+      if(data.code == 200){
+        $('#item'+id).remove()
+      }
+
+    },"json")
+  })
+</script>
+</html>

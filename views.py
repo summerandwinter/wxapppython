@@ -14,7 +14,7 @@ from leancloud.errors import LeanCloudError
 from PIL import Image, ImageColor, ImageFont, ImageDraw, ImageFilter
 from io import BytesIO
 import os
-
+import pymysql
 
 class Todo(Object):
     pass
@@ -57,13 +57,49 @@ def imageNew(request):
     msstream=BytesIO()
     image_data.save(msstream,"jpeg")
     image_data.close()
-    return HttpResponse(msstream.getvalue(),content_type="image/jpeg") 
+    return HttpResponse(msstream.getvalue(),content_type="image/jpeg")
+
+class MarkView(View):
+    def get(self, request):
+        db = pymysql.connect("localhost","root","root","maker",charset='utf8')
+        cursor = db.cursor()
+        sql = "SELECT * FROM card2  order by db_num limit 100"
+        data_list = []
+        count = 0
+        try:
+            cursor.execute(sql)
+            results = cursor.fetchall()
+            db.close()
+            count = len(results)
+            for row in results:
+                id = row[0]
+                content = row[1]
+                img_url = row[2]
+                name = row[3]
+                db_num = row[4]
+                likes = row[5]
+                shares = row[6]
+                data = {}
+                data['id'] = id
+                data['content'] = content
+                data['img_url'] = img_url
+                data['name'] = name
+                data['db_num'] = db_num
+                data['likes'] = likes
+                data['shares'] = shares
+                data_list.append(data)
+        except BaseException as e:
+            print(str(e))
+        return render(request,'mark.html',{'cards':data_list,'count':count})            
+
+
 class CardView(View):
     def get(self, request):
         try:
             query = Query(Card)
             query.not_equal_to('publish',True)
             query.not_equal_to('deleted',True)
+            query.exists('user')
             #query.not_equal_to('publish',False)
             #query.does_not_exist('cid')
             count = query.count()
@@ -75,6 +111,25 @@ class CardView(View):
             else:
                 raise e
         return render(request,'cards.html',{'cards':cards,'count':count})
+
+class CardPreviewView(View):
+    def get(self, request):
+        try:
+            query = Query(Card)
+            query.not_equal_to('publish',True)
+            query.not_equal_to('deleted',True)
+            query.does_not_exist('user')
+            #query.not_equal_to('publish',False)
+            #query.does_not_exist('cid')
+            count = query.count()
+            query.include('user')
+            cards = query.descending('likes').find()
+        except LeanCloudError as e:
+            if e.code == 101:
+                cards = []
+            else:
+                raise e
+        return render(request,'card_preview.html',{'cards':cards,'count':count})        
 
 class CardPublishedView(View):
     def get(self, request):
