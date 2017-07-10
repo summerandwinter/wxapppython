@@ -16,6 +16,7 @@ from qiniu import urlsafe_base64_encode, urlsafe_base64_decode
 from PIL import Image, ImageColor, ImageFont, ImageDraw, ImageFilter
 from io import BytesIO
 from textwrap import *
+from weixin import weixin
 import requests
 from haishoku.haishoku import Haishoku
 import re
@@ -23,7 +24,16 @@ import os
 import base64
 import json
 import os
+import configparser 
 
+cf = configparser.ConfigParser()
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
+cf.read("config.conf")
+os.environ["WXA_APP_ID"] = cf.get("wxa", "app_id")
+os.environ["WXA_APP_SECRET"] = cf.get("wxa", "app_secret")
+app_id = os.environ["WXA_APP_ID"]
+app_secret = os.environ["WXA_APP_SECRET"]
+wx = weixin(app_id,app_secret)
 class Card(Object):
     pass
 class Photo(Object):
@@ -81,17 +91,18 @@ class Movie():
 
     @staticmethod
     def movie(data,msstream):
-        w = 640
-        h = 862
-        iw = 640
-        ih = 427
-        content_margin_top = 60
+        w = 640*2
+        h = 862*2
+        iw = 640*2
+        ih = 427*2
+        content_margin_top = 60*2
         content_margin_bottom = 0
-        title_margin_top = 10
-        title_margin_bottom = 100
-        max_content_w = 560
-        spacing = 20
-        copyright_h = 140
+        title_margin_top = 10*2
+        title_margin_bottom = 100*2
+        max_content_w = 560*2
+        spacing = 20*2
+        copyright_h = 70*2
+        copyright_padding = 20
 
 
         title = '每日一言'
@@ -106,12 +117,12 @@ class Movie():
         if 'url' in data:
             url = data['url']
 
-        title_font = ImageFont.truetype('font/zh/YueSong.ttf', 26)
+        title_font = ImageFont.truetype('font/zh/YueSong.ttf', 26*2)
 
         title_w,title_h = title_font.getsize(title)
     
         content_formated = ''
-        content_font = ImageFont.truetype('font/zh/YueSong.ttf',30)
+        content_font = ImageFont.truetype('font/zh/YueSong.ttf',30*2)
         single_content_w,single_content_h = content_font.getsize("已")
         print(single_content_h)
         lines = content.split('\n')
@@ -137,8 +148,9 @@ class Movie():
 
 
         h = ih + content_margin_top + content_h + content_margin_bottom + title_margin_top + title_h + title_margin_bottom
-        #if 'id' in data and 'copyright' in data:
-        #    h += copyright_h
+        if 'id' in data and 'copyright' in data:
+            h += copyright_h + copyright_padding *2
+
         base = Image.new('RGBA',(w,h),(255,255,255,255))
         draw = ImageDraw.Draw(base)
         
@@ -162,11 +174,17 @@ class Movie():
         draw.multiline_text((w - (title_w + w/2-max_content_w/2),ih + content_margin_top + content_h + content_margin_bottom + title_margin_top), title, font=title_font, fill=(0,0,0,255), align='right')
         draw.multiline_text((w/2-max_content_w/2,ih+content_margin_top), content_formated, font=content_font, fill=(0,0,0,255), align='left', spacing=spacing)
         
-        #if 'id' in data and 'copyright' in data:
-        #    wxacodestream = wx.get_wxacode_unlimit(data['id']);
-        #    wxacode = Image.open(BytesIO(wxacodestream)).convert('RGBA')
-        #    wxacode = wxacode.resize((copyright_h,copyright_h),Image.ANTIALIAS)
-        #    base.paste(wxacode,box=(0,h-copyright_h))
+        if 'id' in data and 'copyright' in data:
+            copyright = Image.new('RGBA',(w,copyright_h+copyright_padding*2),(255,255,255,255))
+            wxacodestream = wx.get_wxacode_unlimit(data['id']);
+            wxacode = Image.open(BytesIO(wxacodestream)).convert('RGBA')
+            wxacode = wxacode.resize((copyright_h,copyright_h),Image.ANTIALIAS)
+            copyright_draw = ImageDraw.Draw(copyright)
+            copyright_font = ImageFont.truetype('font/zh/YueSong.ttf', 16*2)
+            copyright_draw.multiline_text((copyright_h+40,copyright_padding+30), "由 一言 发布于微信小程序 天天码图", font=copyright_font, fill=(44,44,44,255), align='left', spacing=spacing)
+            copyright_draw.multiline_text((copyright_h+40,copyright_padding+80), "长按识别小程序码可以进入卡片详情页", font=copyright_font, fill=(138,138,138,200), align='left', spacing=spacing)
+            copyright.paste(wxacode,box=(copyright_padding,copyright_padding))
+            base.paste(copyright,box=(0,h-copyright_h-copyright_padding*2))
         #base.show()
         # get BytesIO
         #msstream = BytesIO()
@@ -188,7 +206,7 @@ class Movie():
         	content = data['content']
         	print(content)
     
-        	data = {'url':url,'title':title,'content':content}
+        	data = {'url':url,'title':title,'content':content,'copyright':'天天码图','id':'12345'}
         	msstream = BytesIO()
         	Movie.movie(data,msstream)
         	return HttpResponse(msstream.getvalue(),content_type="image/png") 
@@ -202,6 +220,6 @@ class Movie():
     
 if __name__ == "__main__":
     content = '我要这天，再遮不住我眼，要这地，再埋不了我心，要这众生，都明白我意，要那诸佛，都烟消云散！'
-    data = {'id':'123456','url':'https://img3.doubanio.com/view/photo/photo/public/p2461588271.webp','title':'悟空传','content':content}
+    data = {'copyright':'天天码图','id':'123456','url':'https://img3.doubanio.com/view/photo/photo/public/p2461588271.webp','title':'悟空传','content':content}
     msstream = BytesIO()
     Movie.movie(data,msstream)
