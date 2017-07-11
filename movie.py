@@ -11,7 +11,7 @@ from leancloud import Query
 from leancloud.errors import LeanCloudError
 from qiniu import Auth, set_default, etag, PersistentFop, build_op, op_save, Zone
 from qiniu import put_data, put_file, put_stream
-from qiniu import BucketManager, build_batch_copy, build_batch_rename, build_batch_move, build_batch_stat, build_batch_delete
+from qiniu import BucketManager,CdnManager, build_batch_copy, build_batch_rename, build_batch_move, build_batch_stat, build_batch_delete
 from qiniu import urlsafe_base64_encode, urlsafe_base64_decode
 from PIL import Image, ImageColor, ImageFont, ImageDraw, ImageFilter
 from io import BytesIO
@@ -47,39 +47,47 @@ class Movie():
     @staticmethod	
     def generate(card):
         try:
-            if(card.get('photo') is None):
-                msstream = BytesIO()
-                data = {'title':card.get('name'),'content':card.get('content'),'author':card.get('author'),'url':card.get('img_url')}
-                Movie.movie(data,msstream)
-                url = os.environ["QINIU_ACCESS_URL"]
-                access_key = os.environ["QINIU_ACCESS_KEY"]
-                secret_key = os.environ["QINIU_SECRET_KEY"]
-                #构建鉴权对象
-                q = Auth(access_key, secret_key)
-                #要上传的空间
-                bucket_name = 'card'
-                key = card.get('objectId')
+            
+            msstream = BytesIO()
+            data = {'copyright':'open','id':card.id,'title':card.get('name'),'content':card.get('content'),'author':card.get('author'),'url':card.get('img_url')}
+            Movie.movie(data,msstream)
+            url = os.environ["QINIU_ACCESS_URL"]
+            access_key = os.environ["QINIU_ACCESS_KEY"]
+            secret_key = os.environ["QINIU_SECRET_KEY"]
+            #构建鉴权对象
+            q = Auth(access_key, secret_key)
+            #要上传的空间
+            bucket_name = 'card'
+            key = card.get('objectId')
+            if card.get('photo') is None:
                 token = q.upload_token(bucket_name)
                 ret, info = put_data(token, key, msstream.getvalue())
-                if(info.ok()):
-                    metaData = {'owner':card.get('username')}
-                    photo = Photo() 
-                    photo.set('mine_type','image/jpeg')
-                    photo.set('key',key)
-                    photo.set('name',key)
-                    photo.set('url',url+'/'+key)
-                    photo.set('provider','qiniu')
-                    photo.set('metaData',metaData)
-                    photo.set('bucket',bucket_name)
-                    photo.save()
-                    update = Card.create_without_data(key)
-                    update.set('photo',photo)
-                    update.save()
-                    return 'ok'
-                else:
-                    return 'failed'
-                return 'already'
-                       
+            else:
+                cdn_manager = CdnManager(q)
+                urls = ['http://oppyrwj3t.bkt.clouddn.com/'+key]
+                token = q.upload_token(bucket_name,key)
+                ret, info = put_data(token, key, msstream.getvalue())
+                refresh_url_result = cdn_manager.refresh_urls(urls)
+            
+            if(info.ok()):
+                metaData = {'owner':card.get('username')}
+                photo = Photo() 
+                photo.set('mine_type','image/jpeg')
+                photo.set('key',key)
+                photo.set('name',key)
+                photo.set('url',url+'/'+key)
+                photo.set('provider','qiniu')
+                photo.set('metaData',metaData)
+                photo.set('bucket',bucket_name)
+                photo.save()
+                update = Card.create_without_data(key)
+                update.set('photo',photo)
+                update.save()
+                return 'ok'
+            else:
+                return 'failed'
+            return 'already'
+                   
                 
         except LeanCloudError as e:
             if e.code == 101:  # 服务端对应的 Class 还没创建
@@ -91,18 +99,18 @@ class Movie():
 
     @staticmethod
     def movie(data,msstream):
-        w = 640*2
-        h = 862*2
-        iw = 640*2
-        ih = 427*2
-        content_margin_top = 60*2
+        w = 800
+        h = 1078
+        iw = 800
+        ih = 534
+        content_margin_top = 75
         content_margin_bottom = 0
-        title_margin_top = 10*2
-        title_margin_bottom = 100*2
-        max_content_w = 560*2
-        spacing = 20*2
-        copyright_h = 70*2
-        copyright_padding = 20
+        title_margin_top = 12
+        title_margin_bottom = 125
+        max_content_w = 710
+        spacing = 25
+        copyright_h = 140
+        copyright_padding = 10
 
 
         title = '每日一言'
@@ -117,12 +125,12 @@ class Movie():
         if 'url' in data:
             url = data['url']
 
-        title_font = ImageFont.truetype('font/zh/YueSong.ttf', 26*2)
+        title_font = ImageFont.truetype('font/zh/YueSong.ttf', 32)
 
         title_w,title_h = title_font.getsize(title)
     
         content_formated = ''
-        content_font = ImageFont.truetype('font/zh/YueSong.ttf',30*2)
+        content_font = ImageFont.truetype('font/zh/YueSong.ttf',37)
         single_content_w,single_content_h = content_font.getsize("已")
         print(single_content_h)
         lines = content.split('\n')
@@ -180,10 +188,11 @@ class Movie():
             wxacode = Image.open(BytesIO(wxacodestream)).convert('RGBA')
             wxacode = wxacode.resize((copyright_h,copyright_h),Image.ANTIALIAS)
             copyright_draw = ImageDraw.Draw(copyright)
-            copyright_font = ImageFont.truetype('font/zh/YueSong.ttf', 16*2)
-            copyright_draw.multiline_text((copyright_h+40,copyright_padding+30), "由 一言 发布于微信小程序 天天码图", font=copyright_font, fill=(44,44,44,255), align='left', spacing=spacing)
-            copyright_draw.multiline_text((copyright_h+40,copyright_padding+80), "长按识别小程序码可以进入卡片详情页", font=copyright_font, fill=(138,138,138,200), align='left', spacing=spacing)
-            copyright.paste(wxacode,box=(copyright_padding,copyright_padding))
+            copyright_font = ImageFont.truetype('font/zh/YueSong.ttf', 20)
+            copyright_draw.multiline_text((20,copyright_padding+50), "作者：小时光", font=copyright_font, fill=(44,44,44,255), align='left', spacing=spacing)
+            copyright_draw.multiline_text((20,copyright_padding+80), "制作：天天码图", font=copyright_font, fill=(44,44,44,255), align='left', spacing=spacing)
+            copyright_draw.multiline_text((20,copyright_padding+110), "长按识别小程序码可以进入卡片详情页", font=copyright_font, fill=(138,138,138,200), align='left', spacing=spacing)
+            copyright.paste(wxacode,box=(w-copyright_h-copyright_padding,copyright_padding))
             base.paste(copyright,box=(0,h-copyright_h-copyright_padding*2))
         #base.show()
         # get BytesIO
