@@ -16,6 +16,7 @@ from qiniu import urlsafe_base64_encode, urlsafe_base64_decode
 from PIL import Image, ImageColor, ImageFont, ImageDraw, ImageFilter
 from io import BytesIO
 from textwrap import *
+from util import Util
 import requests
 from haishoku.haishoku import Haishoku
 import re

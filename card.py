@@ -280,17 +280,26 @@ def preview(request,id):
     try:
         card = Query(Card).get(id)
         tid = card.get('template')
+        type = card.get('type')
         msstream = BytesIO()
-        if tid == 1:
-            template(card,msstream)
-        elif tid == 2:
-            template2(card,msstream)
-        elif tid == 3:
-            template3(card,msstream)
-        elif tid == 4:
-            template4(card,msstream)
+        data = {'copyright':'天天码图','author':card.get('author'),'id':card.id,'url':card.get('img_url'),'title':card.get('name'),'content':card.get('content')}
+        if type == 'movie':
+            Movie.movie(data,msstream)
+        elif type == 'music':
+            Music.music(data,msstream)
+        elif type == 'book':
+            Book.book(data,msstream)
         else:
-            template(card,msstream)  
+            if tid == 1:
+                template(card,msstream)
+            elif tid == 2:
+                template2(card,msstream)
+            elif tid == 3:
+                template3(card,msstream)
+            elif tid == 4:
+                template4(card,msstream)
+            else:
+                template(card,msstream)  
         return HttpResponse(msstream.getvalue(),content_type="image/png") 
     except LeanCloudError as e:
         if e.code == 101:  # 服务端对应的 Class 还没创建
@@ -304,17 +313,26 @@ def download(request,id):
     try:
         card = Query(Card).get(id)
         tid = card.get('template')
+        type = card.get('type')
         msstream = BytesIO()
-        if tid == 1:
-            template(card,msstream)
-        elif tid == 2:
-            template2(card,msstream)
-        elif tid == 3:
-            template3(card,msstream)
-        elif tid == 4:
-            template4(card,msstream)
+        data = {'copyright':'天天码图','author':card.get('author'),'id':card.id,'url':card.get('img_url'),'title':card.get('name'),'content':card.get('content')}
+        if type == 'movie':
+            Movie.movie(data,msstream)
+        elif type == 'music':
+            Music.music(data,msstream)
+        elif type == 'book':
+            Book.book(data,msstream)
         else:
-            template(card,msstream)  
+            if tid == 1:
+                template(card,msstream)
+            elif tid == 2:
+                template2(card,msstream)
+            elif tid == 3:
+                template3(card,msstream)
+            elif tid == 4:
+                template4(card,msstream)
+            else:
+                template(card,msstream)  
         return HttpResponse(msstream.getvalue(),content_type="image/png") 
     except LeanCloudError as e:
         if e.code == 101:  # 服务端对应的 Class 还没创建

@@ -38,7 +38,7 @@ class weixin():
 	def get_wxacode_unlimit(self,scene):
 	    access_token = self.get_token()
 	    url = 'http://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token='+access_token
-	    payload = {'scene': scene,'width':430,'auto_color':False,"line_color":{"r":"0","g":"0","b":"0"}}
+	    payload = {'scene': scene,'width':430,'auto_color':False,"line_color":{"r":"138","g":"138","b":"138"}}
 	    r = requests.post(url, json = payload)
 	    print(r.status_code)
 	    #print(r.json())

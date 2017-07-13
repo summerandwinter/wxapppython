@@ -98,8 +98,8 @@ class CardPreviewView(View):
             if page is None:
                 page = 0
             count = query.count()
-            query.skip(int(page)*1000)
-            query.limit(1000)
+            query.skip(int(page)*100)
+            query.limit(100)
             query.include('user')
             cards = query.descending('likes').find()
         except LeanCloudError as e:

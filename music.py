@@ -15,6 +15,7 @@ from qiniu import BucketManager, build_batch_copy, build_batch_rename, build_bat
 from qiniu import urlsafe_base64_encode, urlsafe_base64_decode
 from PIL import Image, ImageColor, ImageFont, ImageDraw, ImageFilter
 from io import BytesIO
+from util import Util
 from textwrap import *
 import requests
 from haishoku.haishoku import Haishoku

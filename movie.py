@@ -17,6 +17,7 @@ from PIL import Image, ImageColor, ImageFont, ImageDraw, ImageFilter
 from io import BytesIO
 from textwrap import *
 from weixin import weixin
+from util import Util
 import requests
 from haishoku.haishoku import Haishoku
 import re
@@ -125,30 +126,16 @@ class Movie():
         if 'url' in data:
             url = data['url']
 
-        title_font = ImageFont.truetype('font/zh/YueSong.ttf', 32)
+        title_font = ImageFont.truetype('font/zh/PingFang.ttf', 32)
 
         title_w,title_h = title_font.getsize(title)
     
-        content_formated = ''
-        content_font = ImageFont.truetype('font/zh/YueSong.ttf',37)
+        
+        content_font = ImageFont.truetype('font/zh/PingFang.ttf',40)
         single_content_w,single_content_h = content_font.getsize("已")
+        content_formated = Util.content_format(content,content_font,max_content_w)
         print(single_content_h)
-        lines = content.split('\n')
-        for line in lines:
-            contents = list(line)
-            line_formated = ''
-            temp = ''
-            for word in contents:
-                temp += word
-                temp_w,temp_h = content_font.getsize(temp)
-                line_formated += word
-                if temp_w + single_content_w > max_content_w:
-                    line_formated += '\n'
-                    temp = ''
-            if temp != '':
-                line_formated += '\n'
-            content_formated += line_formated
-    
+
         print(content_formated)
         
         clines = len(content_formated.split('\n'))
@@ -179,8 +166,8 @@ class Movie():
         # get a drawing context
         draw = ImageDraw.Draw(base)
         # draw text in the middle of the image, half opacity
-        draw.multiline_text((w - (title_w + w/2-max_content_w/2),ih + content_margin_top + content_h + content_margin_bottom + title_margin_top), title, font=title_font, fill=(0,0,0,255), align='right')
-        draw.multiline_text((w/2-max_content_w/2,ih+content_margin_top), content_formated, font=content_font, fill=(0,0,0,255), align='left', spacing=spacing)
+        draw.multiline_text((w - (title_w + w/2-max_content_w/2),ih + content_margin_top + content_h + content_margin_bottom + title_margin_top), title, font=title_font, fill=(112,112,112,255), align='right')
+        draw.multiline_text((w/2-max_content_w/2,ih+content_margin_top), content_formated, font=content_font, fill=(112,112,112,255), align='left', spacing=spacing)
         
         if 'id' in data and 'copyright' in data:
             copyright = Image.new('RGBA',(w,copyright_h+copyright_padding*2),(255,255,255,255))
@@ -189,9 +176,9 @@ class Movie():
             wxacode = wxacode.resize((copyright_h,copyright_h),Image.ANTIALIAS)
             copyright_draw = ImageDraw.Draw(copyright)
             copyright_font = ImageFont.truetype('font/zh/YueSong.ttf', 20)
-            copyright_draw.multiline_text((20,copyright_padding+50), "作者：小时光", font=copyright_font, fill=(44,44,44,255), align='left', spacing=spacing)
-            copyright_draw.multiline_text((20,copyright_padding+80), "制作：天天码图", font=copyright_font, fill=(44,44,44,255), align='left', spacing=spacing)
-            copyright_draw.multiline_text((20,copyright_padding+110), "长按识别小程序码可以进入卡片详情页", font=copyright_font, fill=(138,138,138,200), align='left', spacing=spacing)
+            #copyright_draw.multiline_text((20,copyright_padding+50), "作者：天天码图", font=copyright_font, fill=(191,191,191,255), align='left', spacing=spacing)
+            copyright_draw.multiline_text((20,copyright_padding+80), "制作：天天码图", font=copyright_font, fill=(138,138,138,255), align='left', spacing=spacing)
+            copyright_draw.multiline_text((20,copyright_padding+110), "长按识别小程序码可以进入卡片详情页", font=copyright_font, fill=(191,191,191,255), align='left', spacing=spacing)
             copyright.paste(wxacode,box=(w-copyright_h-copyright_padding,copyright_padding))
             base.paste(copyright,box=(0,h-copyright_h-copyright_padding*2))
         #base.show()
