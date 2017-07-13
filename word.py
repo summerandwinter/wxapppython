@@ -143,27 +143,29 @@ class Word():
         h = 635+th+ch+crh+ah;
         base = Image.new('RGBA',(w,h),(255,255,255,255))
         draw = ImageDraw.Draw(base)
+        padding_top =80
+        if url !='':
+            padding_top += ih
+            file = BytesIO(requests.get(url).content)
+            photo = Image.open(file).convert('RGBA')
     
-        file = BytesIO(requests.get(url).content)
-        photo = Image.open(file).convert('RGBA')
+            (pw, ph) = photo.size
+            if pw/ph>iw/ih:
+                box = ((pw-ph*iw/ih)/2,0,(pw+ph*iw/ih)/2,ph)
+            else:
+                box = (0,(ph-pw*ih/iw)/2,pw,(ph+pw*ih/iw)/2)  
     
-        (pw, ph) = photo.size
-        if pw/ph>iw/ih:
-            box = ((pw-ph*iw/ih)/2,0,(pw+ph*iw/ih)/2,ph)
-        else:
-            box = (0,(ph-pw*ih/iw)/2,pw,(ph+pw*ih/iw)/2)  
-    
-        photo = photo.crop(box)
-        photo = photo.resize((iw,ih))
-        base.paste(photo,box=(20,20))
+            photo = photo.crop(box)
+            photo = photo.resize((iw,ih))
+            base.paste(photo,box=(20,20))
         # get a drawing context
         draw = ImageDraw.Draw(base)
         # draw text in the middle of the image, half opacity
         if len(title) > 0:
-            draw.multiline_text((w/2-tw/2,420), title, font=title_fnt, fill=(0,0,0,255), align='center')
-        draw.multiline_text((w/2-cw/2,420+th+45), content_formated, font=content_fnt, fill=(0,0,0,255), align='left', spacing=spacing)
-        draw.multiline_text((w/2-aw/2,420+th+45+ch+115), author, font=author_fnt, fill=(0,0,0,255), align='center')
-        draw.multiline_text((w-crw,420+th+45+ch+115+ah+50), copyright, font=copyright_fnt, fill=(189,189,189,255), align='center')
+            draw.multiline_text((w/2-tw/2,padding_top), title, font=title_fnt, fill=(0,0,0,255), align='center')
+        draw.multiline_text((w/2-cw/2,padding_top+th+45), content_formated, font=content_fnt, fill=(0,0,0,255), align='left', spacing=spacing)
+        draw.multiline_text((w/2-aw/2,padding_top+th+45+ch+115), author, font=author_fnt, fill=(0,0,0,255), align='center')
+        draw.multiline_text((w-crw,padding_top+th+45+ch+115+ah+50), copyright, font=copyright_fnt, fill=(189,189,189,255), align='center')
        
         
         # save image data to output stream
@@ -429,6 +431,6 @@ class Word():
     
 if __name__ == "__main__":
     content = 'A single idea from the human mind can build cities. An idea can transform the world and rewrite all the rules. 我要这天，再遮不住我眼，要这地，再埋不了我心，要这众生，都明白我意，要那诸佛，都烟消云散！'
-    data = {'copyright':'天天码图','id':'123456','url':'https://img3.doubanio.com/view/photo/photo/public/p2461588271.webp','title':'悟空传','content':content}
+    data = {'copyright':'天天码图','id':'123456','title':'悟空传','content':content}
     msstream = BytesIO()
     Word.template(data,msstream)
