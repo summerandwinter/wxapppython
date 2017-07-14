@@ -8,7 +8,10 @@ class Util():
         lines = content.split('\n')
         content_formated = ''
         single_content_w,single_content_h = content_fnt.getsize("已")
+        size = len(lines)
+        current = 0
         for line in lines:
+            current = current +1
             temp = ''
             line_formated = ''
             words = line.split(' ')
@@ -37,18 +40,22 @@ class Util():
                         if temp_w + single_content_w > max_content_w:
                             line_formated += '\n'
                             temp = ''
-            if temp != '':
+            if temp != '' and current < size:
                 line_formated += '\n'
             content_formated += line_formated
-    
+        #remove the last \n    
+        length = len(content_formated)
+        if content_formated[length-1] == '\n':
+            content_formated = content_formated[:-1]
         return content_formated
 
 
   
 if __name__ == "__main__":
     from PIL import ImageFont
-    content = 'The deepest love I think, later than apart, I will live as you like. 我所认为最深沉的爱,莫过于分开以后,我将自己活成了你的样子。'
+    content = 'The deepest love I think, \nlater than apart, \nI will live as you like.\n 我所认为最深沉的爱,\n我将自己活成了你的样子。你的样子你\n我将自己活成了你的样子。你的样子你'
     max_content_w = 710
     content_font = ImageFont.truetype('font/zh/PingFang.ttf',40)
     content_formated = Util.content_format(content,content_font,max_content_w)
+    print(len(content_formated.split('\n')))
     print(content_formated)

@@ -17,6 +17,7 @@ from card import *
 from music import Music
 from book import Book
 from movie import Movie
+from word import Word
 import requests
 import base64
 import re
@@ -406,8 +407,11 @@ def makeMovie(**params):
         formId = params['formId']
         card.set('formId',formId)
     userid = params['userid']
-    user = User.create_without_data(userid)
-    card.set('user',user)       
+    user = User.create_without_data(userid)  
+    if 'file' in params:
+        file = params['file']
+        image = _File.create_without_data(file)
+        card.set('image',image)    
     card.set('user',user)
     card.set('type','movie')
     card.set('public',public)
@@ -416,6 +420,45 @@ def makeMovie(**params):
     card.set('shares',0)
     card.save()
     stat = Movie.generate(card)
+    if stat == 'ok':
+        result = {'code':200,'data':card.get('objectId')}
+        return result
+    else:
+        result = {'code':500,'message':'failed'}
+        return result
+
+@engine.define
+def makeWord(**params):
+    name = params['name']
+    content = params['content']       
+    img_url = params['img_url']
+    template = params['template']
+    public = params['public'] 
+    author = params['author']    
+    card = Card()
+    card.set('name',name)
+    card.set('content',content)
+    card.set('img_url',img_url)
+    card.set('template',template)
+    card.set('public',public)
+    card.set('type','word')
+    card.set('author',author)
+    if 'file' in params:
+        file = params['file']
+        image = _File.create_without_data(file)
+        card.set('image',image)       
+    if 'formId' in params:
+        formId = params['formId']
+        card.set('formId',formId)
+    
+    userid = params['userid']
+    user = User.create_without_data(userid)
+    card.set('user',user)       
+    card.set('publish',False)
+    card.set('likes',0)
+    card.set('shares',0)
+    card.save()
+    stat = Word.generate(card)
     if stat == 'ok':
         result = {'code':200,'data':card.get('objectId')}
         return result
@@ -608,11 +651,11 @@ def likes(**params):
     
 @engine.define
 def templates(**params):
+    # {'id':2,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template2.png'},
+    # {'id':4,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template4.png'}
     data = [
-        {'id':1,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template.png'},
-        {'id':2,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template2.png'},
-        {'id':3,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template3.png'},
-        {'id':4,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template4.png'}
+        {'id':1,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template.png'}, 
+        {'id':3,'url':'http://7rfkul.com1.z0.glb.clouddn.com/template3.png'}       
     ]
     result = {'code':200,'data':data}
     return result
