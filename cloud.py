@@ -817,3 +817,12 @@ def before_todo_save(todo):
     if len(content) >= 240:
         todo.set('content', content[:240] + ' ...')
 
+@engine.define
+def cates(**params):
+    #data = [{ 'title': '「 电影 」', 'description': '光影之间 品味感动', 'event': 'toMovie' },
+    #  { 'title': '「 音乐 」', 'description': '旋律背后的文字最能打动人心', 'event': 'toMusic' },
+    #  { 'title': '「 读书 」', 'description': '于墨香之中宁静心神', 'event': 'toBook' },
+    #  { 'title': '「 独白 」', 'description': '总有那么一句话让你念念不忘', 'event': 'toWord' }]
+    data = [{ 'title': '「 独白 」', 'description': '总有那么一句话让你念念不忘', 'event': 'toWord' }]
+    result = {'code':200,'data':data}
+    return result
