@@ -53,7 +53,7 @@ class Util():
   
 if __name__ == "__main__":
     from PIL import ImageFont
-    content = 'The deepest love I think, \nlater than apart, \nI will live as you like.\n 我所认为最深沉的爱,\n我将自己活成了你的样子。你的样子你\n我将自己活成了你的样子。你的样子你'
+    content = 'The deepest love \nI think, \nlater than apart, \nI will live as you like.\n 我所认为最深沉的爱,\n我将自己活成了你的样子。你的样子你\n我将自己活成了你的样子。你的样子你'
     max_content_w = 710
     content_font = ImageFont.truetype('font/zh/PingFang.ttf',40)
     content_formated = Util.content_format(content,content_font,max_content_w)
