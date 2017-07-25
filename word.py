@@ -50,8 +50,14 @@ class Word():
         try:
             
             msstream = BytesIO()
-            data = {'copyright':'open','id':card.id,'title':card.get('name'),'content':card.get('content'),'author':card.get('author'),'url':card.get('img_url')}
-            Word.template(data,msstream)
+            template = card.get('template')
+            data = {'id':card.id,'title':card.get('name'),'content':card.get('content'),'author':card.get('author'),'url':card.get('img_url')}
+            if template == 1:
+                Word.template(data,msstream)
+            elif template == 3:
+                Word.template3(data,msstream)
+            else:
+                Word.template(data,msstream)       
             url = os.environ["QINIU_ACCESS_URL"]
             access_key = os.environ["QINIU_ACCESS_KEY"]
             secret_key = os.environ["QINIU_SECRET_KEY"]
@@ -101,7 +107,7 @@ class Word():
     @staticmethod
     def template(data,msstream):
         w = 640
-        h = 862
+        h = 640
         iw = 600
         ih = 340
         title = ''
@@ -117,38 +123,77 @@ class Word():
    
         spacing = 20
         max_content_w = 420
-        author = '- 天天码图 -' 
+        padding_top = 100
+        padding_bottom = 100
+        content_padding_top = 45
+        author_padding_top = 70
+        author = ''
+        if 'author' in data:
+            author = '- '+data['author']+' -' 
+
         copyright = '微信小程序「天天码图」'  
         title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
-        content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 30)
-        author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
-        copyright_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
+        content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 28)
+        author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 20)
+        copyright_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 20)
         content_formated = Util.content_format(content,content_fnt,max_content_w)
 
         single_content_w,single_content_h = content_fnt.getsize("已")
-        print(single_content_h)
         
     
         print(content_formated)
-        
-        base = Image.new('RGBA',(w,h),(255,255,255,255))
-        draw = ImageDraw.Draw(base)
+             
+
+        #compute the height of the text area
+        text_w = 420
+        text_h = 0
+        clines = len(content_formated.split('\n'))
+     
+        content_h = clines * single_content_h + (clines -1) * spacing
+
+        tw = 0
+        th = 0    
         if len(title) > 0:
-            tw,th = draw.multiline_textsize(title, font=title_fnt)
-        else:
-            th =0    
-        aw,ah = draw.multiline_textsize(author, font=author_fnt)
-        cw,ch = draw.multiline_textsize(content_formated, font=content_fnt, spacing=spacing)
-        crw,crh = draw.multiline_textsize(copyright, font=copyright_fnt)
-        h = 635+th+ch+crh+ah;
+            tw,th = title_fnt.getsize(title)
+            text_h += th + content_padding_top
+        text_h += content_h 
+        aw = 0
+        ah = 0
+        if len(author)>0:
+            aw,ah = author_fnt.getsize(author)
+            text_h += ah + author_padding_top
+        
+        
+        text = Image.new('RGBA',(text_w,text_h),(255,255,255,255))
+
+        draw = ImageDraw.Draw(text)
+        # draw text in the middle of the image, half opacity
+        content_top = 0
+        if len(title) > 0:
+            draw.multiline_text((text_w/2-tw/2,0), title, font=title_fnt, fill=(0,0,0,255), align='center')
+            content_top = content_top + th + content_padding_top
+        draw.multiline_text((0,content_top), content_formated, font=content_fnt, fill=(0,0,0,255), align='left', spacing=spacing)
+        author_top = content_top + content_h +author_padding_top
+
+        if len(author) > 0:
+            draw.multiline_text((text_w/2-aw/2,author_top), author, font=author_fnt, fill=(0,0,0,255), align='center')
+
+        crw,crh = copyright_fnt.getsize(copyright)
+
+        h = max(text_h + padding_top +padding_bottom,h)       
+        text_padding_top = 40
+        text_padding_bottom = 80
+        if url != '':
+            h = max(ih + 20 + text_padding_top + text_padding_bottom + text_h,h)
+
         base = Image.new('RGBA',(w,h),(255,255,255,255))
         draw = ImageDraw.Draw(base)
-        padding_top =80
+        text_left = int((w-text_w)/2)
+        text_top = int((h-text_h)/2)
         if url !='':
-            padding_top += ih
             file = BytesIO(requests.get(url).content)
             photo = Image.open(file).convert('RGBA')
-    
+            text_top = ih + 20 + text_padding_top 
             (pw, ph) = photo.size
             if pw/ph>iw/ih:
                 box = ((pw-ph*iw/ih)/2,0,(pw+ph*iw/ih)/2,ph)
@@ -159,268 +204,163 @@ class Word():
             photo = photo.resize((iw,ih))
             base.paste(photo,box=(20,20))
         # get a drawing context
-        draw = ImageDraw.Draw(base)
-        # draw text in the middle of the image, half opacity
+        base.paste(text,box=(text_left,text_top))
+        draw.multiline_text((w-crw,h-crh-10), copyright, font=copyright_fnt, fill=(189,189,189,255), align='center')
+       
+        
+        # save image data to output stream
+        base.save(msstream,"jpeg")
+        #base.show()
+        # release memory
+        base.close()
+    
+    @staticmethod
+    def template3(data,msstream):
+        w = 640
+        h = 640
+        iw = 600
+        ih = 340
+        bw = 300
+        bh = 300        
+        title = ''
+        if 'title' in data:
+            title = data['title']
+        content = ''
+        if 'content' in data:
+            content = data['content']
+
+        url = ''
+        if 'url' in data:
+            url = data['url']
+   
+        spacing = 20
+        max_content_w = 420
+        padding_top = 100
+        padding_bottom = 100
+        content_padding_top = 45
+        author_padding_top = 70
+        author = ''
+        if 'author' in data:
+            author = '- '+data['author']+' -' 
+
+        copyright = '微信小程序「天天码图」'  
+        title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
+        content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 28)
+        author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 20)
+        copyright_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 20)
+        content_formated = Util.content_format(content,content_fnt,max_content_w)
+
+        single_content_w,single_content_h = content_fnt.getsize("已")
+        
+    
+        print(content_formated)
+             
+
+        #compute the height of the text area
+        text_w = 420
+        text_h = 0
+        clines = len(content_formated.split('\n'))
+     
+        content_h = clines * single_content_h + (clines -1) * spacing
+
+        tw = 0
+        th = 0    
         if len(title) > 0:
-            draw.multiline_text((w/2-tw/2,padding_top), title, font=title_fnt, fill=(0,0,0,255), align='center')
-        draw.multiline_text((w/2-cw/2,padding_top+th+45), content_formated, font=content_fnt, fill=(0,0,0,255), align='left', spacing=spacing)
-        draw.multiline_text((w/2-aw/2,padding_top+th+45+ch+115), author, font=author_fnt, fill=(0,0,0,255), align='center')
-        draw.multiline_text((w-crw,padding_top+th+45+ch+115+ah+50), copyright, font=copyright_fnt, fill=(189,189,189,255), align='center')
+            tw,th = title_fnt.getsize(title)
+            text_h += th + content_padding_top
+        text_h += content_h 
+        aw = 0
+        ah = 0
+        if len(author)>0:
+            aw,ah = author_fnt.getsize(author)
+            text_h += ah + author_padding_top
+        
+        
+        text = Image.new('RGBA',(text_w,text_h),(255,255,255,255))
+
+        draw = ImageDraw.Draw(text)
+        # draw text in the middle of the image, half opacity
+        content_top = 0
+        if len(title) > 0:
+            draw.multiline_text((text_w/2-tw/2,0), title, font=title_fnt, fill=(0,0,0,255), align='center')
+            content_top = content_top + th + content_padding_top
+        draw.multiline_text((0,content_top), content_formated, font=content_fnt, fill=(0,0,0,255), align='left', spacing=spacing)
+        author_top = content_top + content_h +author_padding_top
+
+        if len(author) > 0:
+            draw.multiline_text((text_w/2-aw/2,author_top), author, font=author_fnt, fill=(0,0,0,255), align='center')
+
+        crw,crh = copyright_fnt.getsize(copyright)
+
+        h = max(text_h + padding_top +padding_bottom,h)       
+        text_padding_top = 60
+        text_padding_bottom = 80
+        photo_padding_top = 110
+        if url != '':
+            h = bh + photo_padding_top + text_padding_top + text_padding_bottom + text_h
+
+        base = Image.new('RGBA',(w,h),(255,255,255,255))
+        
+        text_left = int((w-text_w)/2)
+        text_top = int((h-text_h)/2)
+        if url !='':
+            text_top = bh + photo_padding_top + text_padding_top
+            file = BytesIO(requests.get(url).content)
+            photo = Image.open(file).convert('RGBA')
+    
+            pw, ph = photo.size
+    
+            if pw > ph:
+                box = ((pw-ph*bw/bh)/2,0,(pw+ph*bw/bh)/2,ph)
+            else:
+                box = (0,(ph-pw*bh/bw)/2,pw,(ph+pw*bh/bw)/2)  
+    
+            photo = photo.crop(box)
+            photo = photo.resize((bw*4,bh*4))
+    
+            circle = Image.new('L', (bw*4, bh*4), 0)
+            draw = ImageDraw.Draw(circle)
+            draw.ellipse((0, 0, bw*4, bh*4), fill=255)
+            alpha = Image.new('L', (bw*4, bh*4), 255)
+            alpha.paste(circle, (0, 0))
+            photo.putalpha(alpha)
+            photo = photo.resize((bw,bh),Image.ANTIALIAS)
+        box_left = int((w-bw)/2)
+        box_top = photo_padding_top
+        base.paste(photo,box=(box_left,box_top),mask=photo)
+        # get a drawing context
+        base.paste(text,box=(text_left,text_top))
+        draw = ImageDraw.Draw(base)
+        draw.multiline_text((w-crw,h-crh-10), copyright, font=copyright_fnt, fill=(189,189,189,255), align='center')
        
         
         # save image data to output stream
         base.save(msstream,"jpeg")
-        base.show()
+        #base.show()
         # release memory
-        base.close()
-    
-    
-    @staticmethod
-    def template2(card,msstream):
-        w = 640
-        h = 1020
-        iw = 600
-        ih = 340
-        title = card.get('name')
-        content = card.get('content')
-        url = card.get('img_url')
-        spacing = 20
-        padding = 2
-        author = '- 天天码图 -' 
-        copyright = '微信小程序「天天码图」'  
-        title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
-        content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 30)
-        author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
-        copyright_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
-        base = Image.new('RGBA',(w,h),(255,255,255,255))
-        draw = ImageDraw.Draw(base)
-        aw,ah = draw.multiline_textsize(author, font=author_fnt)
-        crw,crh = draw.multiline_textsize(copyright, font=copyright_fnt)
-    
-        file = BytesIO(urllib.request.urlopen(url).read())
-        photo = Image.open(file).convert('RGBA')
-    
-        (pw, ph) = photo.size
-        if pw/ph>iw/ih:
-            box = ((pw-ph*iw/ih)/2,0,(pw+ph*iw/ih)/2,ph)
-        else:
-            box = (0,(ph-pw*ih/iw)/2,pw,(ph+pw*ih/iw)/2)  
-    
-        photo = photo.crop(box)
-        photo = photo.resize((iw,ih))
-        base.paste(photo,box=(20,20))
-        # get a drawing context
-        draw = ImageDraw.Draw(base)
-        # split the title
-        tlines = wrap(title, 1)
-        # current title height
-        tnh = 420
-        # get width and height of single title word
-        stw,sth = title_fnt.getsize("已")
-        for tline in tlines:       
-            draw.text((w-115-stw,tnh), tline, fill=(0,0,0,255), font=title_fnt)
-            tnh = tnh+sth
-        # get width and height of single content word
-        scw,sch = content_fnt.getsize("已")    
-        clines = wrap(content, 14)
-        # current width of content
-        cnw = w-115-stw-115-scw
-        for cline in clines:
-            # current height of content 
-            cnh = 420 
-            cwords = wrap(cline, 1)
-            for cword in cwords:
-                pattern = re.compile("[，。、]+") 
-                if pattern.search(cword):
-                    draw.text((cnw,cnh), cword, fill=(0,0,0,255), font=content_fnt)
-                    # draw.text((cnw+30-12,cnh-30+12), cword, fill=(0,0,0,255), font=content_fnt)
-                else:
-                    draw.text((cnw,cnh), cword, fill=(0,0,0,255), font=content_fnt)                           
-                cnh = cnh+sch+padding
-            cnw = cnw-scw-spacing   
-    
-           
-        # draw text in the middle of the image, half opacity
-        # draw.multiline_text((w/2-tw/2,420), title, font=title_fnt, fill=(0,0,0,255), align='center')
-        # draw.multiline_text((w/2-cw/2,420+th+45), content, font=content_fnt, fill=(0,0,0,255), align='center', spacing=spacing)
-        draw.multiline_text((w/2-aw/2,h-50-15-crh-ah), author, font=author_fnt, fill=(0,0,0,255), align='center')
-        draw.multiline_text((w-crw,h-15-crh), copyright, font=copyright_fnt, fill=(189,189,189,255), align='center')
-       
-    
-        # save image data to output stream
-        base.save(msstream,"jpeg")
-        # release memory
-        base.close()
+        base.close()    
         
-    @staticmethod
-    def template3(card,msstream):
-        w = 640
-        h = 862
-        iw = 600
-        ih = 340
-        bw = 300
-        bh = 300
-        title = card.get('name')
-        content = card.get('content')
-        url = card.get('img_url')
-        spacing = 20
-        content = fill(content, 15)
-        author = '- 天天码图 -' 
-        copyright = '微信小程序「天天码图」'  
-        title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
-        content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 30)
-        author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
-        copyright_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
-        base = Image.new('RGBA',(w,h),(255,255,255,255))
-        draw = ImageDraw.Draw(base)
-        tw,th = draw.multiline_textsize(title, font=title_fnt)
-        aw,ah = draw.multiline_textsize(author, font=author_fnt)
-        cw,ch = draw.multiline_textsize(content, font=content_fnt, spacing=spacing)
-        crw,crh = draw.multiline_textsize(copyright, font=copyright_fnt)
-        h = 695+th+ch+crh+ah;
-        base = Image.new('RGBA',(w,h),(255,255,255,255))
-        draw = ImageDraw.Draw(base)
-    
-        file = BytesIO(urllib.request.urlopen(url).read())
-        photo = Image.open(file).convert('RGBA')
-    
-        pw, ph = photo.size
-    
-        if pw > ph:
-            box = ((pw-ph*bw/bh)/2,0,(pw+ph*bw/bh)/2,ph)
-        else:
-            box = (0,(ph-pw*bh/bw)/2,pw,(ph+pw*bh/bw)/2)  
-    
-        photo = photo.crop(box)
-        photo = photo.resize((bw*4,bh*4))
-    
-        circle = Image.new('L', (bw*4, bh*4), 0)
-        draw = ImageDraw.Draw(circle)
-        draw.ellipse((0, 0, bw*4, bh*4), fill=255)
-        alpha = Image.new('L', (bw*4, bh*4), 255)
-        alpha.paste(circle, (0, 0))
-        photo.putalpha(alpha)
-        photo = photo.resize((bw,bh),Image.ANTIALIAS)
-    
-        base.paste(photo,box=(170,120),mask=photo)
-        # get a drawing context
-        draw = ImageDraw.Draw(base)
-        # draw text in the middle of the image, half opacity
-        draw.multiline_text((w/2-tw/2,480), title, font=title_fnt, fill=(0,0,0,255), align='center')
-        draw.multiline_text((w/2-cw/2,480+th+45), content, font=content_fnt, fill=(0,0,0,255), align='center', spacing=spacing)
-        draw.multiline_text((w/2-aw/2,480+th+45+ch+115), author, font=author_fnt, fill=(0,0,0,255), align='center')
-        draw.multiline_text((w-crw,480+th+45+ch+115+ah+50), copyright, font=copyright_fnt, fill=(189,189,189,255), align='center')
-       
-        # save image data to output stream
-        base.save(msstream,"jpeg")
-        # release memory
-        base.close()
+
     
     
-    @staticmethod
-    def template4(card,msstream):
-        w = 640
-        h = 1080
-        iw = 600
-        ih = 340
-        bw = 300
-        bh = 300
-        padding = 2
-        title = card.get('name')
-        content = card.get('content')
-        url = card.get('img_url')
-        spacing = 20
-        content = fill(content, 15)
-        author = '- 天天码图 -' 
-        copyright = '微信小程序「天天码图」'  
-        title_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 35)
-        content_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 30)
-        author_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
-        copyright_fnt = ImageFont.truetype('font/zh/YueSong.ttf', 25)
-        base = Image.new('RGBA',(w,h),(255,255,255,255))
-        draw = ImageDraw.Draw(base)
-        aw,ah = draw.multiline_textsize(author, font=author_fnt)
-        crw,crh = draw.multiline_textsize(copyright, font=copyright_fnt)
-    
-        file = BytesIO(urllib.request.urlopen(url).read())
-        photo = Image.open(file).convert('RGBA')
-    
-        pw, ph = photo.size
-    
-        if pw > ph:
-            box = ((pw-ph*bw/bh)/2,0,(pw+ph*bw/bh)/2,ph)
-        else:
-            box = (0,(ph-pw*bh/bw)/2,pw,(ph+pw*bh/bw)/2)  
-    
-        photo = photo.crop(box)
-        photo = photo.resize((bw*4,bh*4))
-    
-        circle = Image.new('L', (bw*4, bh*4), 0)
-        draw = ImageDraw.Draw(circle)
-        draw.ellipse((0, 0, bw*4, bh*4), fill=255)
-        alpha = Image.new('L', (bw*4, bh*4), 255)
-        alpha.paste(circle, (0, 0))
-        photo.putalpha(alpha)
-        photo = photo.resize((bw,bh),Image.ANTIALIAS)
-    
-        base.paste(photo,box=(170,120),mask=photo)
-        # get a drawing context
-        draw = ImageDraw.Draw(base)
-        # split the title
-        tlines = wrap(title, 1)
-        # current title height
-        tnh = 480
-        # get width and height of single title word
-        stw,sth = title_fnt.getsize("已")
-        for tline in tlines:       
-            draw.text((w-115-stw,tnh), tline, fill=(0,0,0,255), font=title_fnt)
-            tnh = tnh+sth
-        # get width and height of single content word
-        scw,sch = content_fnt.getsize("已")    
-        clines = wrap(content, 14)
-        # current width of content
-        cnw = w-115-stw-115-scw
-        for cline in clines:
-            # current height of content 
-            cnh = 480 
-            cwords = wrap(cline, 1)
-            for cword in cwords:
-                pattern = re.compile("[，。、]+") 
-                if pattern.search(cword):
-                    draw.text((cnw,cnh), cword, fill=(0,0,0,255), font=content_fnt)
-                    # draw.text((cnw+30-12,cnh-30+12), cword, fill=(0,0,0,255), font=content_fnt)
-                else:
-                    draw.text((cnw,cnh), cword, fill=(0,0,0,255), font=content_fnt)                           
-                cnh = cnh+sch+padding
-            cnw = cnw-scw-spacing   
-    
-           
-        # draw text in the middle of the image, half opacity
-        # draw.multiline_text((w/2-tw/2,420), title, font=title_fnt, fill=(0,0,0,255), align='center')
-        # draw.multiline_text((w/2-cw/2,420+th+45), content, font=content_fnt, fill=(0,0,0,255), align='center', spacing=spacing)
-        draw.multiline_text((w/2-aw/2,h-50-15-crh-ah), author, font=author_fnt, fill=(0,0,0,255), align='center')
-        draw.multiline_text((w-crw,h-15-crh), copyright, font=copyright_fnt, fill=(189,189,189,255), align='center')
-       
-        # save image data to output stream
-        base.save(msstream,"jpeg")
-        # release memory
-        base.close()
+
            
     @staticmethod         
     def preview(request,param):
         try:
             #param = reuest.GET.get('data')
-        	json_str = base64.b64decode(param).decode('utf-8')
-        	data = json.loads(json_str)
-        	url = data['url']
-        	title = data['title']
-        	content = data['content']
-        	print(content)
-    
-        	data = {'url':url,'title':title,'content':content,'copyright':'天天码图','id':'12345'}
-        	msstream = BytesIO()
-        	Word.template(data,msstream)
-        	return HttpResponse(msstream.getvalue(),content_type="image/png") 
+            json_str = base64.b64decode(param).decode('utf-8')
+            json_data = json.loads(json_str)
+            data = {'content':json_data['content']}
+            if 'url' in json_data:
+                data['url'] = json_data['url']
+            if 'title' in json_data:
+                data['title'] = json_data['title']
+            if 'author' in json_data:
+                data['author'] = json_data['author']
+            msstream = BytesIO()
+            Word.template(data,msstream)
+            return HttpResponse(msstream.getvalue(),content_type="image/png") 
         except LeanCloudError as e:
             if e.code == 101:  # 服务端对应的 Class 还没创建
                 card = ''
@@ -430,7 +370,7 @@ class Word():
                 return HttpResponse(e,content_type="text/plain")
     
 if __name__ == "__main__":
-    content = 'A single idea from the human mind can build cities. An idea can transform the world and rewrite all the rules. 我要这天，再遮不住我眼，要这地，再埋不了我心，要这众生，都明白我意，要那诸佛，都烟消云散！'
-    data = {'copyright':'天天码图','id':'123456','title':'悟空传','content':content}
+    content = '我要这天，再遮不住我眼，要这地，再埋不了我心，要这众生，都明白我意，要那诸佛，都烟消云散！'
+    data = {'author':'今何在','title':'悟空传','content':content,'url':'https://img3.doubanio.com/view/photo/photo/public/p2461588271.webp'}
     msstream = BytesIO()
-    Word.template(data,msstream)
+    Word.template3(data,msstream)

@@ -10,9 +10,9 @@ import card
 from music import Music
 from book import Book
 from movie import Movie
+from word import Word
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
     url(r'^$', views.index),
     url(r'^time/?$', views.current_time),
     url(r'^todos/?$', views.TodoView.as_view(), name='todo_list'),
@@ -36,6 +36,7 @@ urlpatterns = [
     url(r'^music/preview/(?P<param>[\w\W]+)$', Music.preview),
     url(r'^book/preview/(?P<param>[\w\W]+)$', Book.preview),
     url(r'^movie/preview/(?P<param>[\w\W]+)$', Movie.preview),
+    url(r'^word/preview/(?P<param>[\w\W]+)$', Word.preview),
     url(r'^image/wxacode?$', images.wxacode),
     url(r'^image/template?$', images.template),
     url(r'^image/template2?$', images.template2),
