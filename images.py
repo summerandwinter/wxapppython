@@ -21,9 +21,9 @@ import os
 from weixin import weixin
 
 
-#app_id = os.environ["WXA_APP_ID"]
-#app_secret = os.environ["WXA_APP_SECRET"] 
-#wx = weixin(app_id,app_secret)  
+app_id = os.environ["WXA_APP_ID"]
+app_secret = os.environ["WXA_APP_SECRET"] 
+wx = weixin(app_id,app_secret)  
 
 # 模糊
 def filter_blur(request):  
