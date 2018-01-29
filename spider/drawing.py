@@ -7,8 +7,8 @@ import json
 import leancloud
 import requests
 
-APP_ID = '7C7MfP24LboNSLeOnbh112nT-gzGzoHsz'
-MASTER_KEY = 'bIEoNy5pSWoqvC3qq0vpGMT1'
+APP_ID = 'boKztnubyxEQYDdrD9BngykM-gzGzoHsz'
+MASTER_KEY = 'IspWXKXN4EtzhNcCCBACcWVi'
 Doodle = Object.extend('Doodle')
 leancloud.init(APP_ID, master_key=MASTER_KEY)
 
@@ -17,7 +17,7 @@ cjhdr  =  urllib.request.HTTPCookieProcessor(cookie)
 opener = urllib.request.build_opener(cjhdr)  
   
 openid = 'otR84wd8PgOyOz_V9GW05Q_6oJDQ'
-for id in range(1,423): 
+for id in range(1,455): 
     url = "https://drawing.api.sdningrun.com/path/getOne"  
     data = {}
     data['openid']= openid
@@ -30,9 +30,8 @@ for id in range(1,423):
             if json_obj['data'] is not None:
                 dodle = Doodle()
                 data = json_obj['data']
-                dodle.set('cid',int(id))
                 dodle.set('path',data['path']) 
-                dodle.set('pic',data['pic'])
+                dodle.set('thumb',data['pic'])
                 Doodle.save(dodle)
                 print(str(id) + ' saved',flush=True)
             else:
